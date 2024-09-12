@@ -2,6 +2,12 @@
 
 serv00 系统重置脚本:
 
+### 运行方式：
+只需在终端中输入以下一行命令即可：
+```bash
+curl -s https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh | bash
+```
+
 这个脚本提供了以下功能:
 
 1. 简化的SSH面板,只包含系统初始化(清理)选项。
