@@ -5,7 +5,7 @@
 
 # serv00 System Reset Script
 
-[English](#english) | [中文简体](#中文简体)
+ [中文简体](#中文简体)|[English](#english)
 
 ---
 
@@ -180,7 +180,6 @@ done
 
 
 ---
-
 ## <a name="english"></a>English
 
 <!-- 在此处填充英文内容 -->
