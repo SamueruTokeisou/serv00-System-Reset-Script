@@ -165,3 +165,172 @@ done
 **免责声明**：该脚本具有清理系统的功能，运行时请谨慎操作，避免误删重要数据。
 ```
 
+```md
+# serv00 System Reset Script
+
+**serv00** is a simple system reset script that helps you easily initialize a server through the SSH terminal. The script provides basic cleaning and system initialization tasks with confirmation prompts to prevent accidental actions.
+
+## Features
+
+- **Simplified SSH Panel**: Includes only system initialization (cleanup) options.
+- **User-Friendly Interface**: Uses color-coded output for easier readability.
+- **Confirmation Prompts**: Ensures that tasks are confirmed before execution to avoid accidental data loss.
+- **Option to Retain User Configurations**: Allows you to keep user configuration files if desired.
+- **Comprehensive Cleanup Tasks**:
+  - Clears `cron` jobs.
+  - Terminates all processes of the current user.
+  - Deletes files from the user's home directory.
+
+## Run the Script in One Command
+
+Simply run the following command in the terminal to download and execute the script:
+
+```bash
+curl -s https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh | bash
+```
+
+## How to Manually Use the Script
+
+1. Download the script and save it as `cleanup.sh`.
+2. Give it execution permission:
+   ```bash
+   chmod +x cleanup.sh
+   ```
+3. Run the script:
+   ```bash
+   ./cleanup.sh
+   ```
+
+### Quick Access Setup
+
+To easily access the script, move it to a global path:
+
+```bash
+sudo mv cleanup.sh /usr/local/bin/cleanup
+```
+
+Now, you can run the script by typing `cleanup` in the terminal from any directory.
+
+### Alias Setup
+
+Alternatively, you can add an alias in your `.bashrc` or `.bash_aliases` file:
+
+```bash
+echo "alias cleanup='~/path/to/cleanup.sh'" >> ~/.bashrc
+source ~/.bashrc
+```
+
+With this alias, you can just type `cleanup` to run the script.
+
+## Important Notes
+
+- **This script deletes user data**. Ensure you back up any important data before running it.
+- Suitable for server environments where quick cleanup and initialization are needed. Please use it with caution.
+
+---
+
+### Script Content
+
+Here is the full content of the script for reference:
+
+```bash
+#!/bin/bash
+
+# Define colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+RESET='\033[0m'
+
+# Helper functions
+red() {
+    echo -e "${RED}$1${RESET}"
+}
+
+green() {
+    echo -e "${GREEN}$1${RESET}"
+}
+
+yellow() {
+    echo -e "${YELLOW}$1${RESET}"
+}
+
+# Clean cron jobs
+cleanCron() {
+    echo "" > null
+    crontab null
+    rm null
+}
+
+# Kill all user processes
+killUserProc() {
+    local user=$(whoami)
+    pkill -kill -u $user
+}
+
+# System initialization function
+initServer() {
+    read -p "$(red "Are you sure you want to initialize the system? This will delete most data. [y/n] [n]: ")" input
+    input=${input:-n}
+    
+    if [[ "$input" == "y" ]] || [[ "$input" == "Y" ]]; then
+        read -p "Do you want to keep user configurations? [y/n] [y]: " saveProfile
+        saveProfile=${saveProfile:-y}
+
+        green "Cleaning cron jobs..."
+        cleanCron
+
+        green "Cleaning user processes..."
+        killUserProc
+
+        green "Cleaning disk..."
+        if [[ "$saveProfile" == "y" ]] || [[ "$saveProfile" == "Y" ]]; then
+            rm -rf ~/* 2>/dev/null
+        else
+            rm -rf ~/* ~/.* 2>/dev/null
+        fi
+
+        yellow "System initialization complete."
+    else
+        yellow "Operation canceled."
+    fi
+}
+
+# Show menu
+showMenu() {
+    clear
+    echo "========================================="
+    echo "      System Cleanup Script - SSH Panel   "
+    echo "========================================="
+    echo "1. Initialize System (Cleanup)"
+    echo "2. Exit"
+    echo "========================================="
+    read -p "Select an option [1-2]: " choice
+
+    case $choice in
+        1)
+            initServer
+            ;;
+        2)
+            echo "Exiting script"
+            exit 0
+            ;;
+        *)
+            red "Invalid choice, please try again."
+            ;;
+    esac
+}
+
+# Main loop
+while true; do
+    showMenu
+    read -p "Press Enter to continue..."
+done
+```
+
+---
+
+**Disclaimer**: This script has the capability to delete system data. Please proceed with caution and ensure important data is backed up before use.
+```
+
+
