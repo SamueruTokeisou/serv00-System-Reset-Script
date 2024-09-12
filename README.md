@@ -175,10 +175,7 @@ while true; do
 done
 ```
 
----
 
-**Disclaimer**: This script has the capability to delete system data. Please proceed with caution and ensure important data is backed up before use.
-```
 
 ---
 
