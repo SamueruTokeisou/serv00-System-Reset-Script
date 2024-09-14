@@ -1,10 +1,4 @@
 # serv00系统重置脚本
-
-
-
-
-# serv00 System Reset Script
-
 # serv00 System Reset Script
 
 ---
