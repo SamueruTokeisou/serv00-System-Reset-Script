@@ -20,14 +20,6 @@
   - 终止用户进程
   - 清理用户主目录
 
-### 快速开始
-
-直接从 GitHub 执行脚本：
-
-```bash
-curl -s https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh | bash
-```
-
 ### 手动安装
 
 1. 下载脚本：
@@ -78,14 +70,6 @@ source ~/.bashrc
   - Cron job clearance
   - User process termination
   - Home directory cleanup
-
-### Quick Start
-
-Execute the script directly from GitHub:
-
-```bash
-curl -s https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh | bash
-```
 
 ### Manual Installation
 
