@@ -5,6 +5,199 @@
 
 # serv00 System Reset Script
 
+# serv00 System Reset Script
+
+---
+
+要使用这个脚本:
+
+将脚本内容保存为文件,例如 
+```bash
+nano cleanup.sh
+```
+给脚本添加执行权限: 
+```bash
+chmod +x cleanup.sh
+```
+运行脚本: 
+```bash
+./cleanup.sh
+```
+脚本内容
+```bash
+#!/bin/bash
+
+# 颜色定义
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+RESET='\033[0m'
+
+# 辅助函数
+red() {
+    echo -e "${RED}$1${RESET}"
+}
+
+green() {
+    echo -e "${GREEN}$1${RESET}"
+}
+
+yellow() {
+    echo -e "${YELLOW}$1${RESET}"
+}
+
+# 清理cron任务
+cleanCron() {
+    echo "" > null
+    crontab null
+    rm null
+}
+
+# 结束所有用户进程
+killUserProc() {
+    local user=$(whoami)
+    pkill -kill -u $user
+}
+
+# 系统初始化函数
+initServer() {
+    read -p "$(red "确定要初始化系统吗？这将删除大部分数据。 [y/n] [n]: ")" input
+    input=${input:-n}
+    
+    if [[ "$input" == "y" ]] || [[ "$input" == "Y" ]]; then
+        read -p "是否保留用户配置？[y/n] [y]: " saveProfile
+        saveProfile=${saveProfile:-y}
+
+        green "清理cron任务..."
+        cleanCron
+
+        green "清理用户进程..."
+        killUserProc
+
+        green "清理磁盘..."
+        if [[ "$saveProfile" = "y" ]] || [[ "$saveProfile" = "Y" ]]; then
+            rm -rf ~/* 2>/dev/null
+        else
+            rm -rf ~/* ~/.* 2>/dev/null
+        fi
+
+        yellow "系统初始化完成"
+    else
+        yellow "操作已取消"
+    fi
+}
+
+# 显示菜单
+showMenu() {
+    clear
+    echo "========================================="
+    echo "         系统清理脚本 - SSH面板          "
+    echo "========================================="
+    echo "1. 初始化系统（清理数据）"
+    echo "2. 退出"
+    echo "========================================="
+    read -p "请选择操作 [1-2]: " choice
+
+    case $choice in
+        1)
+            initServer
+            ;;
+        2)
+            echo "退出脚本"
+            exit 0
+            ;;
+        *)
+            red "无效的选择，请重新输入"
+            ;;
+    esac
+}
+
+# 主循环
+while true; do
+    showMenu
+    read -p "按Enter键继续..."
+done
+```
+
+[中文简体](#%E4%B8%AD%E6%96%87%E7%AE%80%E4%BD%93) | [English](#english)
+
+## 中文简体
+
+### 概述
+
+**serv00** 是一个简单的系统重置脚本，帮助您通过SSH终端轻松清理和初始化服务器。此脚本提供了友好的界面，并在执行前进行确认，防止意外操作。
+
+### 特性
+
+-   **简化的SSH面板**：专注于系统初始化任务。
+-   **彩色输出**：使阅读和操作更加方便。
+-   **操作确认提示**：防止意外删除数据。
+-   **用户配置保留选项**：允许在清理过程中保留用户设置。
+-   **全面的清理任务**：
+    -   清理Cron任务。
+    -   终止用户进程。
+    -   删除用户目录中的文件。
+
+### 如何运行脚本
+
+使用以下命令一键运行脚本：
+
+```bash
+curl -s https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh | bash
+```
+
+### 注意事项
+
+## 使用该脚本时请小心，因为它会删除用户数据。在执行前请备份重要文件。
+
+## Englis
+
+Here's the basic template for your document in a format compatible with Wiki.js, using the language switching structure you mentioned:
+
+md
+
+# serv00 System Reset Script
+
+---
+
+## English
+
+### Overview
+
+**serv00** is a simple system reset script designed to assist in server cleanup through an SSH terminal. This script offers a basic, user-friendly interface and ensures all tasks are confirmed before execution.
+
+### Features
+
+-   **Simplified SSH Panel**: Focused only on system initialization tasks.
+-   **Color-coded Output**: For easier reading and interaction.
+-   **Confirmation Prompts**: Protect against accidental data deletion.
+-   **User Configuration Preservation**: Option to keep user settings during cleanup.
+-   **Comprehensive Cleanup Tasks**:
+    -   Cron jobs cleanup.
+    -   User process termination.
+    -   User directory cleanup.
+
+### How to Run the Script
+
+To run the script in one line, use:
+
+```bash
+curl -s https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh | bash
+```
+
+### Important Notes
+
+**Be cautious** when using this script, as it involves deletion of user data. Backup important files before proceeding.
+
+```
+
+### Key Sections:
+- Replace `<!-- Insert your English content here -->` with the actual English description.
+- Replace `<!-- Insert your Chinese content here -->` with the actual Chinese description.
+
+This format will work well in Wiki.js.
+```
+
  [中文简体](#中文简体)|[English](#english)
 
 ---
