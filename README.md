@@ -9,14 +9,6 @@
 ```bash
 nano cleanup.sh
 ```
-给脚本添加执行权限: 
-```bash
-chmod +x cleanup.sh
-```
-运行脚本: 
-```bash
-./cleanup.sh
-```
 脚本内容
 ```bash
 #!/bin/bash
@@ -112,6 +104,15 @@ while true; do
     read -p "按Enter键继续..."
 done
 ```
+给脚本添加执行权限: 
+```bash
+chmod +x cleanup.sh
+```
+运行脚本: 
+```bash
+./cleanup.sh
+```
+
 
 
 
