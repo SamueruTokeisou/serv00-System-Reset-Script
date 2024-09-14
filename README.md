@@ -1,7 +1,62 @@
 # serv00 系统重置脚本 | serv00 System Reset Script
 
 [English](#english) | [中文](#中文)
+---
 
+## 中文
+
+### 概述
+
+**serv00** 是一个简洁的系统重置脚本，旨在通过 SSH 轻松初始化服务器。它提供了基本的清理和系统重置功能，并内置了防止意外数据丢失的安全措施。
+
+### 主要特性
+
+- 简单的 SSH 界面
+- 彩色输出，提高可读性
+- 操作确认提示，防止误操作
+- 可选择保留用户配置
+- 全面的清理任务：
+  - 清除 cron 任务
+  - 终止用户进程
+  - 清理用户主目录
+
+### 快速开始
+
+直接从 GitHub 执行脚本：
+
+```bash
+curl -s https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh | bash
+```
+
+### 手动安装
+
+1. 下载脚本：
+   ```bash
+   curl -O https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh
+   ```
+2. 添加执行权限：
+   ```bash
+   chmod +x system-cleanup-script.sh
+   ```
+3. 运行脚本：
+   ```bash
+   ./system-cleanup-script.sh
+   ```
+
+### 高级设置
+
+为方便访问：
+
+```bash
+sudo mv system-cleanup-script.sh /usr/local/bin/serv00-reset
+```
+
+或创建别名：
+
+```bash
+echo "alias serv00-reset='~/path/to/system-cleanup-script.sh'" >> ~/.bashrc
+source ~/.bashrc
+```
 ---
 
 ## English
@@ -63,62 +118,7 @@ source ~/.bashrc
 
 This script deletes user data. Always backup important information before use.
 
----
 
-## 中文
-
-### 概述
-
-**serv00** 是一个简洁的系统重置脚本，旨在通过 SSH 轻松初始化服务器。它提供了基本的清理和系统重置功能，并内置了防止意外数据丢失的安全措施。
-
-### 主要特性
-
-- 简单的 SSH 界面
-- 彩色输出，提高可读性
-- 操作确认提示，防止误操作
-- 可选择保留用户配置
-- 全面的清理任务：
-  - 清除 cron 任务
-  - 终止用户进程
-  - 清理用户主目录
-
-### 快速开始
-
-直接从 GitHub 执行脚本：
-
-```bash
-curl -s https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh | bash
-```
-
-### 手动安装
-
-1. 下载脚本：
-   ```bash
-   curl -O https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh
-   ```
-2. 添加执行权限：
-   ```bash
-   chmod +x system-cleanup-script.sh
-   ```
-3. 运行脚本：
-   ```bash
-   ./system-cleanup-script.sh
-   ```
-
-### 高级设置
-
-为方便访问：
-
-```bash
-sudo mv system-cleanup-script.sh /usr/local/bin/serv00-reset
-```
-
-或创建别名：
-
-```bash
-echo "alias serv00-reset='~/path/to/system-cleanup-script.sh'" >> ~/.bashrc
-source ~/.bashrc
-```
 
 ### 注意事项
 
