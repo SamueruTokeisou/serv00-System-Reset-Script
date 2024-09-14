@@ -57,6 +57,9 @@ sudo mv system-cleanup-script.sh /usr/local/bin/serv00-reset
 echo "alias serv00-reset='~/path/to/system-cleanup-script.sh'" >> ~/.bashrc
 source ~/.bashrc
 ```
+### 注意事项
+
+此脚本会删除用户数据。使用前请务必备份重要信息。
 ---
 
 ## English
@@ -120,6 +123,4 @@ This script deletes user data. Always backup important information before use.
 
 
 
-### 注意事项
 
-此脚本会删除用户数据。使用前请务必备份重要信息。
