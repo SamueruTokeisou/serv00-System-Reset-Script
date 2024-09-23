@@ -106,7 +106,7 @@ source ~/.bashrc
 This script deletes user data. Always backup important information before use.
 
 
-看起来脚本没有成功创建。你可以再次尝试创建 `upgrade_go.sh` 脚本，确保在一个新的终端会话中执行。请按照以下步骤操作：
+一键创建go：
 
 1. 打开终端，确保你在主目录或其他合适的目录中。
 2. 使用以下命令创建脚本：
