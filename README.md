@@ -106,7 +106,7 @@ source ~/.bashrc
 This script deletes user data. Always backup important information before use.
 
 
-# 一键创建go：
+#  升级Go 语言环境
 
 1. 打开终端，确保你在主目录或其他合适的目录中。
 2. 使用以下命令创建脚本：
