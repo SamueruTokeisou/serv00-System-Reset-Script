@@ -106,5 +106,51 @@ source ~/.bashrc
 This script deletes user data. Always backup important information before use.
 
 
+看起来脚本没有成功创建。你可以再次尝试创建 `upgrade_go.sh` 脚本，确保在一个新的终端会话中执行。请按照以下步骤操作：
 
+1. 打开终端，确保你在主目录或其他合适的目录中。
+2. 使用以下命令创建脚本：
+
+```bash
+cat << 'EOF' > ~/upgrade_go.sh
+#!/bin/bash
+
+# 创建安装目录
+mkdir -p ~/local/soft && cd ~/local/soft
+
+# 下载编译好的 go1.22 的程序包
+wget https://dl.google.com/go/go1.22.0.freebsd-amd64.tar.gz
+
+# 解压
+tar -xzvf go1.22.0.freebsd-amd64.tar.gz
+
+# 删除压缩文件
+rm go1.22.0.freebsd-amd64.tar.gz
+
+# 修改 .profile 文件
+echo 'export PATH=~/local/soft/go/bin:$PATH' >> ~/.profile
+
+# 使 .profile 的修改生效
+source ~/.profile
+
+# 检查 go 版本
+go version
+
+echo "Go 语言环境升级完成！"
+EOF
+```
+
+3. 赋予执行权限：
+
+```bash
+chmod +x ~/upgrade_go.sh
+```
+
+4. 运行脚本：
+
+```bash
+~/upgrade_go.sh
+```
+
+确保没有错误消息。如果一切顺利，你应该能看到 Go 语言环境被成功升级的消息。
 
