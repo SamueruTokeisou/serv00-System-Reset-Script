@@ -106,6 +106,8 @@ source ~/.bashrc
 This script deletes user data. Always backup important information before use.
 
 
+
+
 #  升级Go 语言环境
 
 1. 打开终端，确保你在主目录或其他合适的目录中。
@@ -157,115 +159,6 @@ chmod +x ~/upgrade_go.sh
 
 ---
 
-## 一键安装命令（适用于 Serv00）
 
-```bash
-# 进入网站目录
-cd ~/domains/www.samueru.nyc.mn/public_html || mkdir -p ~/domains/www.samueru.nyc.mn/public_html && cd ~/domains/www.samueru.nyc.mn/public_html
-
-# 清空目录（⚠请先备份）
-rm -rf ./*
-
-# 下载 Typecho 最新稳定版
-wget -O typecho.zip https://github.com/typecho/typecho/releases/latest/download/typecho.zip
-
-# 解压并删除压缩包
-unzip typecho.zip && rm typecho.zip
-
-# 进入主题目录，若不存在则创建
-mkdir -p usr/themes && cd usr/themes
-
-# 删除旧主题（可选）
-rm -rf MWordStar
-
-# 下载 MWordStar 主题最新版本
-wget -O MWordStar.zip https://github.com/changbin1997/MWordStar/releases/latest/download/MWordStar-2.6-bundle.zip
-
-# 解压主题并删除压缩包
-unzip MWordStar.zip && rm MWordStar.zip
-
-# 重命名主题文件夹
-mv MWordStar-2.6 MWordStar
-```
-
----
-
-## GitHub 介绍文章模板（README.md）
-
-````markdown
-# Typecho 一键安装脚本（Serv00 专用）
-
-这是一个针对 Serv00 主机环境设计的 Typecho 博客系统及 MWordStar 主题的一键安装脚本，适合喜欢轻量级且功能丰富博客的你。
-
----
-
-## 功能
-
-- 自动下载并安装 Typecho 最新稳定版
-- 自动下载并安装 MWordStar 主题最新版本
-- 目录清理，避免旧文件干扰
-- 适配 Serv00 环境（512MB 内存）
-
----
-
-## 使用说明
-
-1. 登录你的 Serv00 主机，通过 SSH 进入网站根目录：
-   ```bash
-   cd ~/domains/www.samueru.nyc.mn/public_html
-````
-
-2. 备份好你的现有数据，运行一键安装命令：
-
-   ```bash
-   # 粘贴上方的一键安装脚本执行即可
-   ```
-
-3. 访问你的网站，进入 Typecho 安装界面，完成数据库配置和管理员账号设置。
-
-4. 进入后台启用 MWordStar 主题，开始你的博客之旅。
-
----
-
-## 适用环境
-
-* Serv00 免费主机或付费主机，PHP 环境支持 Typecho 运行
-* 建议 PHP 版本 7.4+
-* 512MB 内存以上（根据主题大小和插件情况有所不同）
-
----
-
-## 备注
-
-* 请务必备份重要数据，以防不测
-* 本脚本不修改数据库，重复执行不会影响数据库内容
-* 主题可替换，替换时只需更改主题下载链接和文件夹名即可
-
----
-
-## 贡献
-
-欢迎提 issue 或 PR，改善脚本适用性和功能。
-
----
-
-## 相关链接
-
-* [Typecho 官方网站](https://typecho.org)
-* [MWordStar 主题仓库](https://github.com/changbin1997/MWordStar)
-* [Serv00 主机服务](https://serv00.com)
-
----
-
-> 作者：Tokeisou Samueru
-> 维护者：\[你的 GitHub 账号链接]
-> 联系邮箱：\[你的邮箱]
-
-```
-
----
-
-如果需要我帮你生成更个性化的版本，或者配合其他主题，也可以告诉我。这样你在 GitHub 发布后，别人一看就能明白怎么快速部署你的环境。
-```
 
 
