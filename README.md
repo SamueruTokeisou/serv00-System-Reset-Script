@@ -79,6 +79,8 @@ source ~/.bashrc
 ## Caution | 注意事项
 
 ⚠️ This script irreversibly deletes user data. Please backup important files before use.
+
+
 ⚠️ 本脚本会不可逆删除用户数据，使用前请务必备份重要文件。
 
 ---
