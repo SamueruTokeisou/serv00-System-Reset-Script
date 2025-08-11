@@ -25,7 +25,7 @@ chmod +x system-cleanup-script.sh
 ./system-cleanup-script.sh
 
 ---
-
+---
 ## Overview | 简介
 
 **serv00** is designed to safely and swiftly reset your server via SSH.
