@@ -1,70 +1,105 @@
+：
+
+````md
 <div align="center">
 
   <img src="https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/logo.svg" alt="serv00 Logo" width="128" height="128" />
 
   <p><em>serv00 - Lightweight system reset script for quick and safe SSH server initialization.</em></p>
 
-  <a href="https://github.com/SamueruTokeisou/serv00/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/SamueruTokeisou/serv00" alt="License" />
-  </a>
-  <a href="https://github.com/SamueruTokeisou/serv00/actions/workflows/shellcheck.yml">
-    <img src="https://github.com/SamueruTokeisou/serv00/actions/workflows/shellcheck.yml/badge.svg" alt="ShellCheck Status" />
-  </a>
-  <a href="https://github.com/SamueruTokeisou/serv00/releases/latest">
-    <img src="https://img.shields.io/github/v/release/SamueruTokeisou/serv00" alt="Latest Release" />
-  </a>
-  <a href="https://github.com/SamueruTokeisou/serv00/discussions">
-    <img src="https://img.shields.io/github/discussions/SamueruTokeisou/serv00?color=%23f39c12" alt="Discussions" />
-  </a>
-
 </div>
 
 ---
 
-- [English README](./README_en.md) | [中文说明](./README_cn.md)
+# Quick Start | 快速启动
 
-- [Contributing](./CONTRIBUTING.md)  
-- [Code of Conduct](./CODE_OF_CONDUCT.md)  
-- [License](./LICENSE)  
+> Run immediately via:
 
----
+```bash
+curl -O https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh
+chmod +x system-cleanup-script.sh
+./system-cleanup-script.sh
+````
 
-## Disclaimer
+> 立即运行：
 
-- serv00 is an open-source script for system reset, aimed at safe, quick server initialization over SSH.  
-- Use responsibly. The script irreversibly deletes user data; backup critical files before use.  
-- This project is independent and not affiliated with any third-party service or company.  
-- Provided "as is" without warranty; maintainers not liable for damages or data loss.
-
----
-
-## Features
-
-- Lightweight and easy-to-use  
-- Color-coded CLI output for clarity  
-- Multiple confirmation prompts to prevent mistakes  
-- Options to preserve user configuration  
-- Cleans cron jobs, terminates user processes, clears user home directories  
+```bash
+curl -O https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh
+chmod +x system-cleanup-script.sh
+./system-cleanup-script.sh
+```
 
 ---
 
-## Documentation & Demo
+# Overview | 简介
 
-- Full documentation available in [English](./README_en.md) and [中文](./README_cn.md)  
-- Demo and usage examples coming soon  
+**serv00** is a lightweight system reset script designed for quick, safe server initialization over SSH.
+It includes essential cleanup tasks with safeguards to prevent accidental data loss.
 
----
-
-## Contact & Community
-
-- GitHub: [SamueruTokeisou/serv00](https://github.com/SamueruTokeisou/serv00)  
-- Discussions: [GitHub Discussions](https://github.com/SamueruTokeisou/serv00/discussions)  
-- Telegram: [t.me/samuerutokeisou](https://t.me/samuerutokeisou)  
+**serv00** 是一款轻量级系统重置脚本，专为通过 SSH 快速且安全地初始化服务器设计。
+集成了基础清理任务，并内置多重确认防止误删。
 
 ---
 
-## Contributors
+# Features | 功能特性
 
-Special thanks to all contributors who made this project possible:
+* Simple CLI with color-coded output
+* Multiple confirmations before destructive actions
+* Optionally preserve user configuration
+* Cleanup tasks: remove cron jobs, terminate user processes, clean user home directories
 
-[![Contributors](https://contrib.rocks/image?repo=SamueruTokeisou/serv00)](https://github.com/SamueruTokeisou/serv00/graphs/contributors)
+---
+
+# Installation | 安装说明
+
+To use more conveniently, move the script to system path:
+
+```bash
+sudo mv system-cleanup-script.sh /usr/local/bin/serv00-reset
+```
+
+Or add alias:
+
+```bash
+echo "alias serv00-reset='~/path/to/system-cleanup-script.sh'" >> ~/.bashrc
+source ~/.bashrc
+```
+
+方便调用的话，把脚本放到系统路径：
+
+```bash
+sudo mv system-cleanup-script.sh /usr/local/bin/serv00-reset
+```
+
+或者设置别名：
+
+```bash
+echo "alias serv00-reset='~/path/to/system-cleanup-script.sh'" >> ~/.bashrc
+source ~/.bashrc
+```
+
+---
+
+# Caution | 注意事项
+
+⚠️ This script irreversibly deletes user data. Please back up important files before use.
+
+⚠️ 本脚本会不可逆删除用户数据，使用前请务必备份重要文件。
+
+---
+
+# Contact | 联系方式
+
+GitHub: [SamueruTokeisou/serv00](https://github.com/SamueruTokeisou/serv00)
+Telegram: [t.me/samuerutokeisou](https://t.me/samuerutokeisou)
+
+---
+
+# License | 许可证
+
+MIT License © 2025 Tokeisou Samueru
+
+```
+
+
+```
