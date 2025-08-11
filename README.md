@@ -68,18 +68,12 @@ source ~/.bashrc
 
 ### Manual Installation
 
-1. Download the script:
-   ```bash
-   curl -O https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh
-   ```
-2. Make it executable:
-   ```bash
-   chmod +x system-cleanup-script.sh
-   ```
-3. Run the script:
-   ```bash
-   ./system-cleanup-script.sh
-   ```
+```bash
+# Quick Start: One-step system cleanup
+curl -O https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh
+chmod +x system-cleanup-script.sh
+./system-cleanup-script.sh
+```
 
 ### Advanced Setup
 
