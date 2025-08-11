@@ -1,4 +1,3 @@
----
 
 ````md
 # serv00 System Reset Script | serv00 系统重置脚本
@@ -145,11 +144,4 @@ source ~/.bashrc
 
 遵循 MIT 许可证，详见 `LICENSE` 文件。
 
-```
-
----
-
-如果你需要，我可以帮你写 CONTRIBUTING.md 和 ISSUE_TEMPLATE，也可以帮你写 Release Notes 模板。
-
-这个版本对你来说，是不是“GitHub顶级项目”感觉更强了？
 ```
