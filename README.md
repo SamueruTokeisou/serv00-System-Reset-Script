@@ -7,7 +7,7 @@
 [![Release](https://img.shields.io/github/v/release/SamueruTokeisou/serv00)](https://github.com/SamueruTokeisou/serv00/releases)
 
 ---
-
+---
 ## Quick Start
 
 > Run the script immediately with:
