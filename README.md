@@ -1,139 +1,70 @@
+<div align="center">
 
-````md
-# serv00 System Reset Script | serv00 系统重置脚本
+  <img src="https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/logo.svg" alt="serv00 Logo" width="128" height="128" />
+
+  <p><em>serv00 - Lightweight system reset script for quick and safe SSH server initialization.</em></p>
+
+  <a href="https://github.com/SamueruTokeisou/serv00/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/SamueruTokeisou/serv00" alt="License" />
+  </a>
+  <a href="https://github.com/SamueruTokeisou/serv00/actions/workflows/shellcheck.yml">
+    <img src="https://github.com/SamueruTokeisou/serv00/actions/workflows/shellcheck.yml/badge.svg" alt="ShellCheck Status" />
+  </a>
+  <a href="https://github.com/SamueruTokeisou/serv00/releases/latest">
+    <img src="https://img.shields.io/github/v/release/SamueruTokeisou/serv00" alt="Latest Release" />
+  </a>
+  <a href="https://github.com/SamueruTokeisou/serv00/discussions">
+    <img src="https://img.shields.io/github/discussions/SamueruTokeisou/serv00?color=%23f39c12" alt="Discussions" />
+  </a>
+
+</div>
 
 ---
 
-## 📚 Contents | 目录
+- [English README](./README_en.md) | [中文说明](./README_cn.md)
 
-- [Quick Start | 快速启动](#quick-start--快速启动)  
-- [Overview | 简介](#overview--简介)  
-- [Features | 功能特性](#features--功能特性)  
-- [Installation | 安装说明](#installation--安装说明)  
-- [Caution | 注意事项](#caution--注意事项)  
-- [Contributing | 贡献](#contributing--贡献)  
-- [License | 许可证](#license--许可证)  
+- [Contributing](./CONTRIBUTING.md)  
+- [Code of Conduct](./CODE_OF_CONDUCT.md)  
+- [License](./LICENSE)  
 
 ---
 
-<details>
-<summary>English Version (click to expand)</summary>
+## Disclaimer
 
-### Quick Start
+- serv00 is an open-source script for system reset, aimed at safe, quick server initialization over SSH.  
+- Use responsibly. The script irreversibly deletes user data; backup critical files before use.  
+- This project is independent and not affiliated with any third-party service or company.  
+- Provided "as is" without warranty; maintainers not liable for damages or data loss.
 
-Run immediately:
+---
 
-```bash
-curl -O https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh
-chmod +x system-cleanup-script.sh
-./system-cleanup-script.sh
-````
+## Features
 
-### Overview
+- Lightweight and easy-to-use  
+- Color-coded CLI output for clarity  
+- Multiple confirmation prompts to prevent mistakes  
+- Options to preserve user configuration  
+- Cleans cron jobs, terminates user processes, clears user home directories  
 
-**serv00** is a lightweight system reset script designed for quick, safe server initialization over SSH.
-It includes essential cleanup operations with safeguards to prevent accidental data loss.
+---
 
-### Features
+## Documentation & Demo
 
-* Simple CLI with color-coded output
-* Multiple confirmations before destructive actions
-* Option to preserve user configuration
-* Cleanup tasks include:
+- Full documentation available in [English](./README_en.md) and [中文](./README_cn.md)  
+- Demo and usage examples coming soon  
 
-  * Removing cron jobs
-  * Terminating user processes
-  * Cleaning user home directories
+---
 
-### Installation
+## Contact & Community
 
-Move the script to system path for easy access:
+- GitHub: [SamueruTokeisou/serv00](https://github.com/SamueruTokeisou/serv00)  
+- Discussions: [GitHub Discussions](https://github.com/SamueruTokeisou/serv00/discussions)  
+- Telegram: [t.me/samuerutokeisou](https://t.me/samuerutokeisou)  
 
-```bash
-sudo mv system-cleanup-script.sh /usr/local/bin/serv00-reset
-```
+---
 
-Or add alias:
+## Contributors
 
-```bash
-echo "alias serv00-reset='~/path/to/system-cleanup-script.sh'" >> ~/.bashrc
-source ~/.bashrc
-```
+Special thanks to all contributors who made this project possible:
 
-### Caution
-
-⚠️ This script will irreversibly delete user data. Backup important files before use.
-
-### Contributing
-
-Contributions and bug reports are welcome. Please follow the contributing guidelines.
-
-### License
-
-MIT License © 2025 Samueru Tokeisou
-
-</details>
-
-<details>
-<summary>中文版 (点击展开)</summary>
-
-### 快速启动
-
-立即运行：
-
-```bash
-curl -O https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh
-chmod +x system-cleanup-script.sh
-./system-cleanup-script.sh
-```
-
-### 简介
-
-**serv00** 是一款轻量级系统重置脚本，专为通过 SSH 快速且安全地初始化服务器设计。
-集成了基础清理操作，并内置多重确认防止误删。
-
-### 功能特性
-
-* 简洁的命令行界面，支持彩色输出
-* 多重确认防止误删
-* 支持选择性保留用户配置
-* 清理内容涵盖：
-
-  * 清空计划任务
-  * 强制结束用户进程
-  * 清理用户主目录
-
-### 安装说明
-
-将脚本移动到系统路径方便调用：
-
-```bash
-sudo mv system-cleanup-script.sh /usr/local/bin/serv00-reset
-```
-
-或者设置别名：
-
-```bash
-echo "alias serv00-reset='~/path/to/system-cleanup-script.sh'" >> ~/.bashrc
-source ~/.bashrc
-```
-
-### 注意事项
-
-⚠️ 本脚本会不可逆删除用户数据，使用前请务必备份重要文件。
-
-### 贡献
-
-欢迎贡献代码和报告问题，请遵守贡献规范。
-
-### 许可证
-
-MIT 许可证 © 2025 Tokeisou Samueru
-
-</details>
-```
-
-——
-
-
-你觉得怎么样？需要我帮你微调或者加点内容吗？
+[![Contributors](https://contrib.rocks/image?repo=SamueruTokeisou/serv00)](https://github.com/SamueruTokeisou/serv00/graphs/contributors)
