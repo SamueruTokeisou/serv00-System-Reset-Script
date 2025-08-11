@@ -1,5 +1,3 @@
-
-````md
 # serv00 System Reset Script | serv00 系统重置脚本
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -7,7 +5,7 @@
 [![Release](https://img.shields.io/github/v/release/SamueruTokeisou/serv00)](https://github.com/SamueruTokeisou/serv00/releases)
 
 ---
----
+
 ## Quick Start
 
 > Run the script immediately with:
@@ -16,7 +14,6 @@
 curl -O https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh
 chmod +x system-cleanup-script.sh
 ./system-cleanup-script.sh
-````
 
 ---
 
