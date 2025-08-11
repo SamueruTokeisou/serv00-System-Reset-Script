@@ -14,7 +14,6 @@
 curl -O https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh
 chmod +x system-cleanup-script.sh
 ./system-cleanup-script.sh
-
 ---
 
 ## Overview
