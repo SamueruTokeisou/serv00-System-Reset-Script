@@ -22,12 +22,12 @@
 
 ### 手动安装
 
-1. 一键脚本
-   ```bash
-   curl -O https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh
+```bash
+# 一键下载并执行系统清理脚本
+curl -O https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh
 chmod +x system-cleanup-script.sh
 ./system-cleanup-script.sh
-   ```
+```
 
 
 ### 高级设置
