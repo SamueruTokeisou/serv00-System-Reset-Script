@@ -1,6 +1,8 @@
 # serv00
 
 A lightweight system reset script for quick and safe SSH server initialization.
+
+
 一个用于快速安全地初始化SSH服务器的轻量级系统重置脚本。
 
 ---
