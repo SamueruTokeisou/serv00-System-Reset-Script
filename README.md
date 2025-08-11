@@ -13,10 +13,12 @@ A lightweight system reset script for quick and safe SSH server initialization.
 
 ---
 
+---
+
 ## Quick Start | 快速启动
 
-> Run immediately via:
-> 立即运行:
+> Run immediately via:  
+> 立即运行：
 
 ```bash
 curl -O https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh
