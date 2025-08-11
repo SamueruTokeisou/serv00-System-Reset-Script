@@ -1,97 +1,48 @@
 # serv00 系统重置脚本 | serv00 System Reset Script
 
-[中文](#中文) | [English](#english)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![ShellCheck](https://github.com/SamueruTokeisou/serv00/actions/workflows/shellcheck.yml/badge.svg)](https://github.com/SamueruTokeisou/serv00/actions/workflows/shellcheck.yml)
+[![Release](https://img.shields.io/github/v/release/SamueruTokeisou/serv00)](https://github.com/SamueruTokeisou/serv00/releases)
+
 ---
 
-## 中文
+## 目录
 
-### 概述
+- [简介](#简介)
+- [功能特性](#功能特性)
+- [安装与使用](#安装与使用)
+- [高级配置](#高级配置)
+- [注意事项](#注意事项)
+- [贡献](#贡献)
+- [许可证](#许可证)
 
-**serv00** 是一个简洁的系统重置脚本，旨在通过 SSH 轻松初始化服务器。它提供了基本的清理和系统重置功能，并内置了防止意外数据丢失的安全措施。
+---
 
-### 主要特性
+## 简介
 
-- 简单的 SSH 界面
-- 彩色输出，提高可读性
-- 操作确认提示，防止误操作
-- 可选择保留用户配置
-- 全面的清理任务：
-  - 清除 cron 任务
-  - 终止用户进程
-  - 清理用户主目录
+**serv00** 是一个轻量且实用的系统重置脚本，专为通过 SSH 远程快速初始化和清理服务器而设计。  
+它集成了基本的清理功能，并添加多重确认机制以防止误删数据。  
 
-### 手动安装
+---
+
+## 功能特性
+
+- 简洁易用的命令行交互界面  
+- 彩色输出提升阅读体验  
+- 操作前多重确认，避免误操作  
+- 可选择保留用户配置信息  
+- 清理任务涵盖：
+  - 计划任务（cron）清空  
+  - 用户进程强制终止  
+  - 用户主目录清理  
+
+---
+
+## 安装与使用
+
+### 快速启动
 
 ```bash
-# 一键下载并执行系统清理脚本
 curl -O https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh
 chmod +x system-cleanup-script.sh
 ./system-cleanup-script.sh
-```
-
-
-### 高级设置
-
-为方便访问：
-
-```bash
-sudo mv system-cleanup-script.sh /usr/local/bin/serv00-reset
-```
-
-或创建别名：
-
-```bash
-echo "alias serv00-reset='~/path/to/system-cleanup-script.sh'" >> ~/.bashrc
-source ~/.bashrc
-```
-### 注意事项
-
-此脚本会删除用户数据。使用前请务必备份重要信息。
----
-
-## English
-
-### Overview
-
-**serv00** is a streamlined system reset script designed for easy server initialization via SSH. It offers essential cleanup and system reset functionalities with built-in safeguards against accidental data loss.
-
-### Key Features
-
-- Simple SSH-based interface
-- Color-coded output for enhanced readability
-- Confirmation prompts to prevent unintended actions
-- Option to preserve user configurations
-- Comprehensive cleanup tasks:
-  - Cron job clearance
-  - User process termination
-  - Home directory cleanup
-
-### Manual Installation
-
-```bash
-# Quick Start: One-step system cleanup
-curl -O https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh
-chmod +x system-cleanup-script.sh
-./system-cleanup-script.sh
-```
-
-### Advanced Setup
-
-For easier access:
-
-```bash
-sudo mv system-cleanup-script.sh /usr/local/bin/serv00-reset
-```
-
-Or create an alias:
-
-```bash
-echo "alias serv00-reset='~/path/to/system-cleanup-script.sh'" >> ~/.bashrc
-source ~/.bashrc
-```
-
-### Caution
-
-This script deletes user data. Always backup important information before use.
-
-
