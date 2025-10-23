@@ -1,88 +1,48 @@
-# serv00
+🌌 Serv00 Galactic Reset
+A lightweight, high-velocity script to reset your VPS, preserving your digital empire.
 
-A lightweight system reset script for quick and safe SSH server initialization.
-
-
-一个用于快速安全地初始化SSH服务器的轻量级系统重置脚本。
-
----
-
-## Overview | 简介
-
-**serv00** is a lightweight system reset script designed for quick, safe server initialization over SSH. It includes essential cleanup tasks with safeguards to prevent accidental data loss.
-
-**serv00** 是一款轻量级系统重置脚本,专为通过 SSH 快速且安全地初始化服务器设计。它集成了基础清理任务,并内置多重确认机制以防止误删。
-
----
+  
+  
+  
 
 
-## Quick Start | 快速启动
 
-> Run immediately via:  
-> 立即运行：
+Overview
+Serv00 Galactic Reset is your warp-speed solution for initializing VPS environments via SSH. Built for Serv00 and beyond, it clears clutter while safeguarding website directories (e.g., Typecho, Memos) and critical configs. Embrace the future of server management with precision and style.
 
-```bash
-curl -O https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh
-chmod +x system-cleanup-script.sh
-./system-cleanup-script.sh
-```
----
-## Overview | 简介
+Quick Start
+Launch into action with a single command:
+curl -O https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/serv00-reset.sh
+chmod +x serv00-reset.sh
+./serv00-reset.sh
 
-**serv00** is designed to safely and swiftly reset your server via SSH.
-It automates essential cleanup tasks with built-in safeguards to prevent accidental data loss.
 
-**serv00** 专为通过 SSH 快速且安全地重置服务器而设计，
-自动执行关键清理操作，并内置多重确认防止误删数据。
+Features
 
----
+Futuristic CLI: Neon-colored interface for a stellar user experience.
+Website Protection: Preserves ~/domains for Typecho/Memos by default.
+Safeguards: Multi-step confirmations to prevent data loss.
+Cleanup Tasks:
+Vaporize cron jobs.
+Terminate rogue user processes.
+Clear home directory, sparing websites and configs.
 
-## Features | 功能特性
 
-* Simple and intuitive CLI with color-coded output
-  简洁直观的彩色命令行界面
-* Multiple confirmation prompts before executing destructive actions
-  多重确认提示，避免误操作
-* Option to preserve user configurations selectively
-  可选择保留用户配置
-* Cleanup tasks include:
-  清理任务涵盖：
 
-  * Removing cron jobs
-    清空计划任务
-  * Terminating user processes
-    强制结束用户进程
-  * Cleaning user home directories
-    清理用户主目录
 
----
+Installation
+For seamless access, integrate into your system:
+sudo mv serv00-reset.sh /usr/local/bin/serv00-reset
 
-## Installation | 安装说明
-
-For easier access, move the script to your system PATH:
-
-方便调用，将脚本移动到系统路径：
-
-```bash
-sudo mv system-cleanup-script.sh /usr/local/bin/serv00-reset
-```
-
-Alternatively, add an alias:
-
-或者设置别名：
-
-```bash
-echo "alias serv00-reset='~/path/to/system-cleanup-script.sh'" >> ~/.bashrc
+Or add a cosmic alias:
+echo "alias serv00-reset='~/serv00-reset.sh'" >> ~/.bashrc
 source ~/.bashrc
-```
-
----
-
-## Caution | 注意事项
-
-⚠️ This script irreversibly deletes user data. Please backup important files before use.
 
 
-⚠️ 本脚本会不可逆删除用户数据，使用前请务必备份重要文件。
+Caution
+⚠️ This script deletes non-essential data. Backup critical files before engaging warp drive.
 
----
+Contributing
+Join the mission! Fork this repo, submit pull requests, or share feedback on X. Let’s build a cleaner universe together.
+
+  © 2025 Tokeisou Samueru · Reset the stars, conquer the void.
