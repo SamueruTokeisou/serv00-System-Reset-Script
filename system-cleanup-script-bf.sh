@@ -28,14 +28,14 @@ killUserProc() {
     green "用户进程以光速终止！"
 }
 
-# 系统初始化：执行星际级清理，保护网站目录
+# 系统初始化：执行星际级清理，保护网站目录及其内容
 initServer() {
     cyan "🚀 启动系统重置协议..."
     read -p "$(red '警告：此操作将删除用户数据（网站除外）。是否继续？[y/n] [n]: ')" input
     input=${input:-n}
 
     if [[ "$input" == "y" ]] || [[ "$input" == "Y" ]]; then
-        read -p "$(yellow '是否保留网站目录（如 ~/domains）？[y/n] [y]: ')" saveWeb
+        read -p "$(yellow '是否保留网站目录（如 ~/domains 及其内容）？[y/n] [y]: ')" saveWeb
         saveWeb=${saveWeb:-y}
         read -p "$(yellow '是否保留用户配置（如 ~/.bashrc）？[y/n] [y]: ')" saveProfile
         saveProfile=${saveProfile:-y}
@@ -48,19 +48,19 @@ initServer() {
         # 终止用户进程
         killUserProc
 
-        # 清理磁盘，排除网站目录
+        # 清理磁盘，排除网站目录及其内容
         if [[ "$saveWeb" == "y" ]] || [[ "$saveWeb" == "Y" ]]; then
             if [ -d "$HOME/go" ]; then
                 chmod -R 755 "$HOME/go" 2>/dev/null
                 rm -rf "$HOME/go" 2>/dev/null
             fi
-            find ~ -maxdepth 1 -not -path "~/domains" -not -path "~" -not -path "~/go" -exec rm -rf {} + 2>/dev/null
+            find ~ -mindepth 1 -not -path "~/domains*" -not -path "~/go" -exec rm -rf {} + 2>/dev/null
         else
             if [ -d "$HOME/go" ]; then
                 chmod -R 755 "$HOME/go" 2>/dev/null
                 rm -rf "$HOME/go" 2>/dev/null
             fi
-            find ~ -maxdepth 1 -not -path "~" -exec rm -rf {} + 2>/dev/null
+            find ~ -mindepth 1 -not -path "~/go" -exec rm -rf {} + 2>/dev/null
         fi
 
         # 可选保留用户配置
