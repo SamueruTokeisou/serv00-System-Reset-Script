@@ -1,54 +1,56 @@
-# 🌌 Serv00 Galactic Reset
+# 🌌 Serv00 System Reset
 
-A lightweight, high-velocity script to reset your VPS, preserving your digital empire.
+A lightweight, high-speed script for resetting serv00.
 
 <div align="center" style="margin-bottom: 24px;">
   <img src="https://img.shields.io/badge/Serv00-Reset-00DDEB?style=flat-square&logo=server" alt="Serv00 Reset" />
   <img src="https://img.shields.io/badge/License-MIT-1E90FF?style=flat-square" alt="MIT License" />
   <img src="https://img.shields.io/badge/Platform-Linux/FreeBSD-D91414?style=flat-square&logo=linux" alt="Platform" />
+  <img src="https://img.shields.io/badge/Language-中文-00DDEB?style=flat-square&logo=translate" alt="English/中文简体 README" />
+</div>
+
+<div align="center" style="margin-bottom: 24px;">
+  📖 <a href="README-zh.md">中文</a> | 🌐 <a href="https://www.samueru.nyc.mn">Typecho Blog</a> | 📝 <a href="https://memos.286163668.xyz">Memos Notes</a> | 📡 <a href="https://x.com/SamueruTokeisou">X</a>
 </div>
 
 ---
 
 ## Overview
 
-**Serv00 Galactic Reset** is your warp-speed solution for initializing VPS environments via SSH. Built for Serv00 and beyond, it clears clutter while safeguarding website directories (e.g., Typecho, Memos) and critical configs. Embrace the future of server management with precision and style.
+**Serv00 System Reset** is a tool for quickly and securely initializing Serv00 VPS environments via SSH.
 
 ---
 
 ## Quick Start
 
-Launch into action with a single command:
+Enter system reset mode with one command:
 
 ```bash
-curl -O https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/serv00-reset.sh
-chmod +x serv00-reset.sh
-./serv00-reset.sh
+curl -O https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh
+chmod +x system-cleanup-script.sh
+./system-cleanup-script.sh
 ```
 
 ---
 
 ## Features
 
-- **Futuristic CLI**: Neon-colored interface for a stellar user experience.
-- **Website Protection**: Preserves `~/domains` for Typecho/Memos by default.
-- **Safeguards**: Multi-step confirmations to prevent data loss.
 - **Cleanup Tasks**:
-  - Vaporize cron jobs.
-  - Terminate rogue user processes.
-  - Clear home directory, sparing websites and configs.
+  - Clear cron jobs.
+  - Terminate user processes.
+  - Clean home directory, preserving websites and configurations.
 
 ---
 
-## Installation
+## Installation Instructions
 
-For seamless access, integrate into your system:
+Integrate seamlessly into your system:
 
 ```bash
 sudo mv serv00-reset.sh /usr/local/bin/serv00-reset
 ```
 
-Or add a cosmic alias:
+Or set an alias:
 
 ```bash
 echo "alias serv00-reset='~/serv00-reset.sh'" >> ~/.bashrc
@@ -59,14 +61,14 @@ source ~/.bashrc
 
 ## Caution
 
-⚠️ This script deletes non-essential data. Backup critical files before engaging warp drive.
+⚠️ This script deletes non-essential data. Back up critical files before starting.
 
 ---
 
-## Contributing
+## Contributions
 
-Join the mission! Fork this repo, submit pull requests, or share feedback on [X](https://x.com/SamueruTokeisou). Let’s build a cleaner universe together.
+Join the system reset! Fork this repository, submit Pull Requests, or share feedback on [X](https://x.com/SamueruTokeisou). Let's build a cleaner universe together!
 
 <footer align="center">
-  <sub>© 2025 Tokeisou Samueru · Reset the stars, conquer the void.</sub>
+  <sub>© 2025 Tokeisou Samueru · System Reset, Conquer the Void.</sub>
 </footer>
