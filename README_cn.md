@@ -1,48 +1,74 @@
-🌌 Serv00 星际重置
-轻量级、高速脚本，用于重置 VPS，守护你的数字帝国。
+# 🌌 Serv00 系统重置
 
-  
-  
-  
+轻量级、高速脚本，用于重置 serv00
 
+<div align="center" style="margin-bottom: 24px;">
+  <img src="https://img.shields.io/badge/Serv00-重置-00DDEB?style=flat-square&logo=server" alt="Serv00 重置" />
+  <img src="https://img.shields.io/badge/许可证-MIT-1E90FF?style=flat-square" alt="MIT License" />
+  <img src="https://img.shields.io/badge/平台-Linux/FreeBSD-D91414?style=flat-square&logo=linux" alt="Platform" />
+  <img src="https://img.shields.io/badge/语言-English-00DDEB?style=flat-square&logo=translate" alt="中文简体/English README" />
+</div>
 
+<div align="center" style="margin-bottom: 24px;">
+  📖 <a href="README-en.md">English</a> | 🌐 <a href="https://www.samueru.nyc.mn">Typecho 博客</a> | 📝 <a href="https://memos.286163668.xyz">Memos 笔记</a> | 📡 <a href="https://x.com/SamueruTokeisou">X</a>
+</div>
 
-简介
-Serv00 星际重置 是一个通过 SSH 快速初始化 VPS 环境的超光速工具。专为 Serv00 等平台设计，它清理杂乱数据，同时默认保护网站目录（如 Typecho、Memos）和关键配置。用精准与风格拥抱服务器管理的未来。
+---
 
-快速启动
-一键进入星际模式：
-curl -O https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/serv00-reset.sh
-chmod +x serv00-reset.sh
-./serv00-reset.sh
+## 简介
 
+**Serv00 系统重置** 是一个通过 SSH 快速初始化 Serv00 VPS 环境的工具。
 
-功能特性
+---
 
-未来派 CLI：霓虹色界面，带来星际级用户体验。
-网站保护：默认保留 ~/domains，守护 Typecho/Memos。
-安全防护：多重确认，防止数据误删。
-清理任务：
-蒸发计划任务。
-终止用户进程。
-清理主目录，保留网站和配置。
+## 快速启动
 
+一键进入系统重置模式：
 
+```bash
+curl -O https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh
+chmod +x system-cleanup-script.sh
+./system-cleanup-script.sh
+```
 
+---
 
-安装说明
+## 功能特性
+
+- **清理任务**：
+  - 蒸发计划任务。
+  - 终止用户进程。
+  - 清理主目录，保留网站和配置。
+
+---
+
+## 安装说明
+
 无缝集成到你的系统：
-sudo mv serv00-reset.sh /usr/local/bin/serv00-reset
 
-或设置星际别名：
+```bash
+sudo mv serv00-reset.sh /usr/local/bin/serv00-reset
+```
+
+或设置别名：
+
+```bash
 echo "alias serv00-reset='~/serv00-reset.sh'" >> ~/.bashrc
 source ~/.bashrc
+```
 
+---
 
-注意事项
+## 注意事项
+
 ⚠️ 本脚本会删除非必要数据。启动前请备份关键文件。
 
-贡献
-加入星际使命！Fork 本仓库，提交 Pull Request，或在 X 上分享反馈。让我们共建更干净的宇宙！
+---
 
-  © 2025 Tokeisou Samueru · 重置星辰，征服虚空。
+## 贡献
+
+加入系统重置！Fork 本仓库，提交 Pull Request，或在 [X](https://x.com/SamueruTokeisou) 上分享反馈。让我们共建更干净的宇宙！
+
+<footer align="center">
+  <sub>© 2025 Tokeisou Samueru · 系统重置，征服虚空。</sub>
+</footer>
