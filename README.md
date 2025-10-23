@@ -1,4 +1,4 @@
-# 🌌 Serv00 星际重置
+# 🌌 Serv00 系统重置
 
 轻量级、高速脚本，用于重置 VPS，守护你的数字帝国。
 
@@ -17,13 +17,13 @@
 
 ## 简介
 
-**Serv00 星际重置** 是一个通过 SSH 快速初始化 VPS 环境的超光速工具。专为 Serv00 等平台设计，它清理杂乱数据，同时默认保护网站目录（如 Typecho、Memos）和关键配置。用精准与风格拥抱服务器管理的未来。
+**Serv00 系统重置** 是一个通过 SSH 快速初始化 VPS 环境的超光速工具。专为 Serv00 等平台设计，它清理杂乱数据，同时默认保护网站目录（如 Typecho、Memos）和关键配置。用精准与风格拥抱服务器管理的未来。
 
 ---
 
 ## 快速启动
 
-一键进入星际模式：
+一键进入系统重置模式：
 
 ```bash
 curl -O https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/serv00-reset.sh
@@ -36,7 +36,7 @@ chmod +x serv00-reset.sh
 ## 功能特性
 
 - **未来派 CLI**：霓虹色界面，带来星际级用户体验。
-- **网站保护**：默认保留 `~/domains`，守护 Typecho/Memos。
+- **网站保护**：默认保留 `~/domains`，
 - **安全防护**：多重确认，防止数据误删。
 - **清理任务**：
   - 蒸发计划任务。
@@ -70,8 +70,8 @@ source ~/.bashrc
 
 ## 贡献
 
-加入星际使命！Fork 本仓库，提交 Pull Request，或在 [X](https://x.com/SamueruTokeisou) 上分享反馈。让我们共建更干净的宇宙！
+加入系统重置！Fork 本仓库，提交 Pull Request，或在 [X](https://x.com/SamueruTokeisou) 上分享反馈。让我们共建更干净的宇宙！
 
 <footer align="center">
-  <sub>© 2025 Tokeisou Samueru · 重置星辰，征服虚空。</sub>
+  <sub>© 2025 Tokeisou Samueru · 系统重置，征服虚空。</sub>
 </footer>
