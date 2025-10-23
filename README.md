@@ -10,7 +10,7 @@
 </div>
 
 <div align="center" style="margin-bottom: 24px;">
-  📖 <a href="README-en.md">Englis</a> | 🌐 <a href="https://www.samueru.nyc.mn">Typecho 博客</a> | 📝 <a href="https://memos.286163668.xyz">Memos 笔记</a> | 📡 <a href="https://x.com/SamueruTokeisou">X</a>
+  📖 <a href="README-en.md">English</a> | 🌐 <a href="https://www.samueru.nyc.mn">Typecho 博客</a> | 📝 <a href="https://memos.286163668.xyz">Memos 笔记</a> | 📡 <a href="https://x.com/SamueruTokeisou">X</a>
 </div>
 
 ---
