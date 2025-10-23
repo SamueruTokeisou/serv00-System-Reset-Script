@@ -26,9 +26,9 @@
 一键进入系统重置模式：
 
 ```bash
-curl -O https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/serv00-reset.sh
-chmod +x serv00-reset.sh
-./serv00-reset.sh
+curl -O https://raw.githubusercontent.com/SamueruTokeisou/serv00/main/system-cleanup-script.sh
+chmod +x system-cleanup-script.sh
+./system-cleanup-script.sh
 ```
 
 ---
