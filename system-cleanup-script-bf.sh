@@ -1,86 +1,100 @@
 #!/bin/bash
 
-# 颜色定义
+# 定义霓虹色输出，打造星际级界面
+CYAN='\033[0;36m'
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 RESET='\033[0m'
 
-# 辅助函数
-red() {
-    echo -e "${RED}$1${RESET}"
-}
+# 辅助函数：为输出注入未来主义色彩
+cyan() { echo -e "${CYAN}$1${RESET}"; }
+red() { echo -e "${RED}$1${RESET}"; }
+green() { echo -e "${GREEN}$1${RESET}"; }
+yellow() { echo -e "${YELLOW}$1${RESET}"; }
 
-green() {
-    echo -e "${GREEN}$1${RESET}"
-}
-
-yellow() {
-    echo -e "${YELLOW}$1${RESET}"
-}
-
-# 清理cron任务
+# 清理计划任务
 cleanCron() {
     echo "" > null
     crontab null
     rm null
+    green "计划任务已蒸发！"
 }
 
-# 结束所有用户进程
+# 终止用户进程
 killUserProc() {
     local user=$(whoami)
-    pkill -kill -u $user
+    pkill -u "$user" 2>/dev/null
+    green "用户进程以光速终止！"
 }
 
-# 系统初始化函数
+# 系统初始化：执行星际级清理，保护网站目录
 initServer() {
-    read -p "$(red "确定要初始化系统吗？这将删除大部分数据。 [y/n] [n]: ")" input
+    cyan "🚀 启动系统重置协议..."
+    read -p "$(red '警告：此操作将删除用户数据（网站除外）。是否继续？[y/n] [n]: ')" input
     input=${input:-n}
-    
+
     if [[ "$input" == "y" ]] || [[ "$input" == "Y" ]]; then
-        read -p "是否保留用户配置？[y/n] [y]: " saveProfile
+        read -p "$(yellow '是否保留网站目录（如 ~/domains）？[y/n] [y]: ')" saveWeb
+        saveWeb=${saveWeb:-y}
+        read -p "$(yellow '是否保留用户配置（如 ~/.bashrc）？[y/n] [y]: ')" saveProfile
         saveProfile=${saveProfile:-y}
 
-        green "清理cron任务..."
+        green "清除杂乱数据，守护你的数字星系..."
+
+        # 清理计划任务
         cleanCron
 
-        green "清理用户进程..."
+        # 终止用户进程
         killUserProc
 
-        green "清理磁盘..."
-        if [[ "$saveProfile" = "y" ]] || [[ "$saveProfile" = "Y" ]]; then
-            rm -rf ~/* 2>/dev/null
+        # 清理磁盘，排除网站目录
+        if [[ "$saveWeb" == "y" ]] || [[ "$saveWeb" == "Y" ]]; then
+            if [ -d "$HOME/go" ]; then
+                chmod -R 755 "$HOME/go" 2>/dev/null
+                rm -rf "$HOME/go" 2>/dev/null
+            fi
+            find ~ -maxdepth 1 -not -path "~/domains" -not -path "~" -not -path "~/go" -exec rm -rf {} + 2>/dev/null
         else
-            rm -rf ~/* ~/.* 2>/dev/null
+            if [ -d "$HOME/go" ]; then
+                chmod -R 755 "$HOME/go" 2>/dev/null
+                rm -rf "$HOME/go" 2>/dev/null
+            fi
+            find ~ -maxdepth 1 -not -path "~" -exec rm -rf {} + 2>/dev/null
         fi
 
-        yellow "系统初始化完成"
+        # 可选保留用户配置
+        if [[ "$saveProfile" != "y" ]] && [[ "$saveProfile" != "Y" ]]; then
+            find ~ -maxdepth 1 -name ".*" -not -path "~" -not -name ".bashrc" -not -name ".profile" -exec rm -rf {} + 2>/dev/null
+        fi
+
+        cyan "系统重置完成，准备迎接新任务！"
     else
-        yellow "操作已取消"
+        yellow "操作已中止，你的星系完好无损。"
     fi
 }
 
-# 显示菜单
+# 显示未来主义菜单
 showMenu() {
     clear
-    echo "========================================="
-    echo "         系统清理脚本 - SSH面板          "
-    echo "========================================="
-    echo "1. 初始化系统（清理数据）"
+    cyan "========================================="
+    cyan "   Serv00 重置：星际清理工具           "
+    cyan "========================================="
+    echo "1. 重置系统（清除数据，保留网站）"
     echo "2. 退出"
-    echo "========================================="
-    read -p "请选择操作 [1-2]: " choice
+    cyan "========================================="
+    read -p "选择任务 [1-2]: " choice
 
     case $choice in
         1)
             initServer
             ;;
         2)
-            echo "退出脚本"
+            cyan "退出曲速引擎，保持好奇！"
             exit 0
             ;;
         *)
-            red "无效的选择，请重新输入"
+            red "无效输入，星际旅人，请重试。"
             ;;
     esac
 }
@@ -88,5 +102,5 @@ showMenu() {
 # 主循环
 while true; do
     showMenu
-    read -p "按Enter键继续..."
+    read -p "$(cyan '按 Enter 继续...')"
 done
