@@ -1,6 +1,6 @@
 # 🌌 Serv00 系统重置
 
-轻量级、高速脚本，用于重置 serv00，守护你的数字帝国。
+轻量级、高速脚本，用于重置 serv00
 
 <div align="center" style="margin-bottom: 24px;">
   <img src="https://img.shields.io/badge/Serv00-重置-00DDEB?style=flat-square&logo=server" alt="Serv00 重置" />
@@ -17,7 +17,7 @@
 
 ## 简介
 
-**Serv00 系统重置** 是一个通过 SSH 快速初始化 VPS 环境的超光速工具。专为 Serv00 等平台设计，它清理杂乱数据，用精准与风格拥抱服务器管理的未来。
+**Serv00 系统重置** 是一个通过 SSH 快速初始化 Serv00 VPS 环境的工具。
 
 ---
 
@@ -35,9 +35,6 @@ chmod +x system-cleanup-script.sh
 
 ## 功能特性
 
-- **未来派 CLI**：霓虹色界面，带来星际级用户体验。
-- **网站保护**：默认保留 `~/domains`，
-- **安全防护**：多重确认，防止数据误删。
 - **清理任务**：
   - 蒸发计划任务。
   - 终止用户进程。
@@ -53,7 +50,7 @@ chmod +x system-cleanup-script.sh
 sudo mv serv00-reset.sh /usr/local/bin/serv00-reset
 ```
 
-或设置星际别名：
+或设置别名：
 
 ```bash
 echo "alias serv00-reset='~/serv00-reset.sh'" >> ~/.bashrc
