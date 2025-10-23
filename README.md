@@ -6,7 +6,7 @@
   <img src="https://img.shields.io/badge/Serv00-重置-00DDEB?style=flat-square&logo=server" alt="Serv00 重置" />
   <img src="https://img.shields.io/badge/许可证-MIT-1E90FF?style=flat-square" alt="MIT License" />
   <img src="https://img.shields.io/badge/平台-Linux/FreeBSD-D91414?style=flat-square&logo=linux" alt="Platform" />
-  <img src="https://img.shields.io/badge/语言-English-00DDEB?style=flat-square&logo=translate" alt="English README" />
+  <img src="https://img.shields.io/badge/语言-English-00DDEB?style=flat-square&logo=translate" alt="中文简体/English README" />
 </div>
 
 <div align="center" style="margin-bottom: 24px;">
