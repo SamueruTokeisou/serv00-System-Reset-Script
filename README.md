@@ -1,6 +1,6 @@
 # 🌌 Serv00 系统重置
 
-轻量级、高速脚本，用于重置 VPS，守护你的数字帝国。
+轻量级、高速脚本，用于重置 serv00，守护你的数字帝国。
 
 <div align="center" style="margin-bottom: 24px;">
   <img src="https://img.shields.io/badge/Serv00-重置-00DDEB?style=flat-square&logo=server" alt="Serv00 重置" />
@@ -17,7 +17,7 @@
 
 ## 简介
 
-**Serv00 系统重置** 是一个通过 SSH 快速初始化 VPS 环境的超光速工具。专为 Serv00 等平台设计，它清理杂乱数据，同时默认保护网站目录（如 Typecho、Memos）和关键配置。用精准与风格拥抱服务器管理的未来。
+**Serv00 系统重置** 是一个通过 SSH 快速初始化 VPS 环境的超光速工具。专为 Serv00 等平台设计，它清理杂乱数据，用精准与风格拥抱服务器管理的未来。
 
 ---
 
