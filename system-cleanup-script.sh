@@ -48,6 +48,12 @@ initServer() {
         killUserProc
 
         green "清理磁盘..."
+        # 清理 $HOME/go 文件夹
+        if [ -d "$HOME/go" ]; then
+            chmod -R 755 "$HOME/go" 2>/dev/null
+            rm -rf "$HOME/go" 2>/dev/null
+        fi
+        
         if [[ "$saveProfile" = "y" ]] || [[ "$saveProfile" = "Y" ]]; then
             rm -rf ~/* 2>/dev/null
         else
