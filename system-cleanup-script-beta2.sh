@@ -317,16 +317,15 @@ show_menu() {
     blue "═══════════════════════════════════════════════════════════════════"
     echo ""
     read -p "请选择操作 [1-6]: " choice
+    # 添加终端兼容性提示
+    if ! tput colors &> /dev/null || [ "$(tput colors)" -lt 8 ]; then
+        yellow "警告: 终端可能不支持颜色，建议使用支持 ANSI 颜色的终端（如 Linux Bash 或 Windows WSL）。"
+        sleep 2
+    fi
 
     case $choice in
-        1)
-            init_server
-            ;;
-        2)
-            echo ""
-            blue "执行: 清理 cron 任务"
-            clean_cron
-            ;;
+        1) init_server ;;
+        2) echo ""; blue "执行: 清理 cron 任务"; clean_cron ;;
         3)
             echo ""
             yellow "警告: 此操作将终止所有用户进程（可能断开连接）"
@@ -340,12 +339,8 @@ show_menu() {
                 yellow "操作已取消"
             fi
             ;;
-        4)
-            restore_web_defaults
-            ;;
-        5)
-            show_info
-            ;;
+        4) restore_web_defaults ;;
+        5) show_info ;;
         6)
             echo ""
             read -p "$(yellow '确认退出脚本？[y/n] [y]: ')" exit_confirm
@@ -356,10 +351,7 @@ show_menu() {
                 exit 0
             fi
             ;;
-        *)
-            red "✗ 无效的选择，请输入 1-6"
-            sleep 1
-            ;;
+        *) red "✗ 无效的选择，请输入 1-6"; sleep 1 ;;
     esac
 }
 
