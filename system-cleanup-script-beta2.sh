@@ -307,25 +307,24 @@ show_menu() {
     echo ""
     blue "═══════════════════════════[ 主菜单 ]══════════════════════════════"
     echo ""
-    echo "  ${GREEN}1.${RESET} 初始化系统（清理数据）"
-    echo "  ${GREEN}2.${RESET} 仅清理 cron 任务"
-    echo "  ${GREEN}3.${RESET} 仅清理用户进程"
-    echo "  ${GREEN}4.${RESET} 恢复 Web 默认设置"
-    echo "  ${GREEN}5.${RESET} 查看环境信息"
-    echo "  ${GREEN}6.${RESET} 退出"
+    echo "  $(green '1.') 初始化系统（清理数据）"
+    echo "  $(green '2.') 仅清理 cron 任务"
+    echo "  $(green '3.') 仅清理用户进程"
+    echo "  $(green '4.') 恢复 Web 默认设置"
+    echo "  $(green '5.') 查看环境信息"
+    echo "  $(green '6.') 退出"
     echo ""
     blue "═══════════════════════════════════════════════════════════════════"
     echo ""
     read -p "请选择操作 [1-6]: " choice
-    # 添加终端兼容性提示
-    if ! tput colors &> /dev/null || [ "$(tput colors)" -lt 8 ]; then
-        yellow "警告: 终端可能不支持颜色，建议使用支持 ANSI 颜色的终端（如 Linux Bash 或 Windows WSL）。"
-        sleep 2
-    fi
 
     case $choice in
         1) init_server ;;
-        2) echo ""; blue "执行: 清理 cron 任务"; clean_cron ;;
+        2)
+            echo ""
+            blue "执行: 清理 cron 任务"
+            clean_cron
+            ;;
         3)
             echo ""
             yellow "警告: 此操作将终止所有用户进程（可能断开连接）"
