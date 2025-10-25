@@ -2,7 +2,7 @@
 
 # =============================================================================
 # serv00 系统重置脚本 - 专业版
-# 版本: 4.4
+# 版本: 4.5
 # 说明: 为serv00用户设计的高性能、高可靠性系统重置工具
 # 功能: 系统清理、快照恢复、环境监控、日志审计
 # 注意: 本脚本在用户权限下运行，不会执行需要root权限的操作
@@ -15,7 +15,7 @@ set -o nounset
 # =============================================================================
 # 全局配置
 # =============================================================================
-readonly SCRIPT_VERSION="4.4"
+readonly SCRIPT_VERSION="4.5"
 readonly SCRIPT_NAME="serv00-reset"
 readonly TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 readonly LOG_FILE="$HOME/${SCRIPT_NAME}_${TIMESTAMP}.log"
@@ -424,7 +424,7 @@ system_init() {
     echo ""
 }
 
-# 快照恢复功能 - 修复显示问题并添加退出选项
+# 快照恢复功能 - 修复变量问题并添加退出选项
 snapshot_recovery() {
     print_info "开始快照恢复功能..."
     
@@ -440,10 +440,11 @@ snapshot_recovery() {
     print_info "当前快照目录内容:"
     ls -la 2>/dev/null || true
     
-    # 读取快照链接 - 使用更稳健的方法
+    # 初始化关联数组
     declare -A snapshot_paths
+    snapshot_paths=()  # 明确初始化数组
     
-    # 使用 ls -la 命令获取符号链接信息
+    # 读取快照链接 - 使用更稳健的方法
     while IFS= read -r line; do
         if [[ $line =~ ^l.*lrwxr ]]; then
             # 提取文件名（从行的末尾部分提取）
@@ -468,7 +469,14 @@ snapshot_recovery() {
     done < <(ls -la 2>/dev/null | grep "^l" || true)
     
     local size=${#snapshot_paths[@]}
-    local sorted_keys=($(printf '%s\n' "${!snapshot_paths[@]}" | sort -r))
+    local sorted_keys=()
+    
+    # 手动构建排序后的键列表
+    for key in "${!snapshot_paths[@]}"; do
+        sorted_keys+=("$key")
+    done
+    IFS=$'\n' sorted_keys=($(sort -r <<< "${sorted_keys[*]}"))
+    unset IFS
     
     if [ $size -eq 0 ]; then
         print_warning "未有备份快照!"
@@ -564,6 +572,8 @@ snapshot_recovery() {
             fi
             
             declare -A foundArr
+            foundArr=()  # 初始化数组
+            
             for folder in "${!snapshot_paths[@]}"; do
                 local path="${snapshot_paths[$folder]}"
                 local results=$(find "$path" -name "$infile" 2>/dev/null || true)
@@ -578,8 +588,15 @@ snapshot_recovery() {
             fi
             
             local i=1
-            local sortedFoundArr=($(printf '%s\n' "${!foundArr[@]}" | sort -r))
+            local sortedFoundArr=()
+            for key in "${!foundArr[@]}"; do
+                sortedFoundArr+=("$key")
+            done
+            IFS=$'\n' sortedFoundArr=($(sort -r <<< "${sortedFoundArr[*]}"))
+            unset IFS
+            
             declare -A indexPathArr
+            indexPathArr=()  # 初始化数组
             
             for folder in "${sortedFoundArr[@]}"; do
                 echo "$i. $folder:"
