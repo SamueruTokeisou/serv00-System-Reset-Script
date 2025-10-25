@@ -3,27 +3,27 @@
 # serv00 系统重置脚本 - 赛博朋克增强版
 # 版本: 3.0
 # 适配: FreeBSD (serv00.com)
-# 风格: Cyberpunk Terminal UI
+# 风格: 赛博终端 UI
 
 set -o pipefail
 
 # === 颜色定义（赛博朋克霓虹色系）===
 NEON_PURPLE='\033[38;5;129m'   # 主色调：霓虹紫
-NEON_CYAN='\033[38;5;51m'      # 霓虹青
-NEON_PINK='\033[38;5;201m'     # 霓虹粉
-NEON_GREEN='\033[38;5;46m'     # 霓虹绿
-NEON_YELLOW='\033[38;5;226m'   # 警告黄
-NEON_RED='\033[38;5;196m'      # 危险红
+NEON_CYAN='\033[38;5;51m'      # 辅助色：霓虹青
+NEON_PINK='\033[38;5;201m'     # 点缀色：霓虹粉
+NEON_GREEN='\033[38;5;46m'     # 状态色：霓虹绿
+NEON_YELLOW='\033[38;5;226m'   # 警示色：明黄
+NEON_RED='\033[38;5;196m'      # 危险色：警报红
 RESET='\033[0m'
 
-# 检测终端是否支持颜色
+# 检测终端是否支持颜色输出
 if [ -t 1 ]; then
     USE_COLOR=1
 else
     USE_COLOR=0
 fi
 
-# 彩色函数（自动降级）
+# 彩色输出函数（不支持颜色则自动降级为普通文本）
 color() {
     local code="$1"; shift
     if [ "$USE_COLOR" = 1 ]; then
@@ -39,11 +39,11 @@ green()  { color "$NEON_GREEN" "$1"; }
 yellow() { color "$NEON_YELLOW" "$1"; }
 red()    { color "$NEON_RED" "$1"; }
 
-# === 配置 ===
+# === 配置区 ===
 LOG_FILE="$HOME/system_cleanup_$(date +%Y%m%d_%H%M%S).log"
 SCRIPT_PID=$$
 
-# === 日志 ===
+# === 日志函数 ===
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE" 2>/dev/null
 }
@@ -58,30 +58,30 @@ check_env() {
     done
 }
 
-# === 清理 cron ===
+# === 清空定时任务（cron）===
 clean_cron() {
     log "清理 cron 任务"
     if crontab -r 2>/dev/null; then
         green "✅ cron 任务已清空"
-        log "Cron tasks cleared"
+        log "Cron 任务已清理"
     else
         if crontab -l >/dev/null 2>&1; then
-            yellow "⚠️  清理失败（权限问题？）"
-            log "Failed to clear cron"
+            yellow "⚠️  清理失败（可能是权限问题）"
+            log "清理 cron 任务失败"
         else
             green "✅ 无 cron 任务，跳过"
-            log "No cron tasks found"
+            log "未发现 cron 任务"
         fi
     fi
 }
 
-# === 终止用户进程（排除自身）===
+# === 终止当前用户的所有进程（排除自身脚本）===
 kill_user_proc() {
     local user=$(whoami)
     log "清理用户进程 (排除 PID: $SCRIPT_PID)"
     
     local count=0
-    # FreeBSD 兼容：ps -U user -o pid=
+    # FreeBSD 兼容模式：ps -U user -o pid=
     for pid in $(ps -U "$user" -o pid= 2>/dev/null); do
         [[ -z "$pid" || "$pid" == "$SCRIPT_PID" ]] && continue
         if kill -9 "$pid" 2>/dev/null; then
@@ -90,11 +90,11 @@ kill_user_proc() {
     done
     
     if [ "$count" -eq 0 ]; then
-        yellow "⚠️  未发现可清理的进程"
+        yellow "⚠️  未发现可终止的进程"
     else
         green "✅ 已终止 $count 个进程"
     fi
-    log "Terminated $count processes"
+    log "已终止 $count 个进程"
 }
 
 # === 安全删除目录 ===
@@ -105,27 +105,27 @@ clean_directory() {
     fi
     if rm -rf "$dir" 2>/dev/null; then
         green "✅ 已删除: $dir"
-        log "Deleted: $dir"
+        log "已删除: $dir"
     else
         yellow "⚠️  无法删除: $dir"
-        log "Failed to delete: $dir"
+        log "删除失败: $dir"
     fi
 }
 
-# === 恢复默认结构 ===
+# === 恢复默认文件结构 ===
 restore_defaults() {
     local username=$(whoami)
     log "恢复默认目录结构"
 
     cyan "→ 创建基础目录..."
     mkdir -p "$HOME/mail" "$HOME/repo" && chmod 755 "$HOME/mail" "$HOME/repo"
-    green "✅ ~/mail  ~/repo"
+    green "✅ 已创建 ~/mail 与 ~/repo"
 
     local domain_base="$HOME/domains/$username.serv00.net"
     mkdir -p "$domain_base/public_html" "$domain_base/logs/access"
     chmod -R 755 "$domain_base"
 
-    # 默认 index.html
+    # 默认首页文件 index.html
     cat > "$domain_base/public_html/index.html" <<EOF
 <!DOCTYPE html>
 <html>
@@ -172,8 +172,8 @@ restore_defaults() {
 <body>
     <div class="cyber-box">
         <h1 class="glitch">🌐 SYSTEM ONLINE</h1>
-        <p>Welcome to <strong>$username.serv00.net</strong></p>
-        <p>Server status: <span style="color:#00ff00">ACTIVE</span></p>
+        <p>欢迎访问 <strong>$username.serv00.net</strong></p>
+        <p>服务器状态: <span style="color:#00ff00">正常运行</span></p>
         <p style="font-size:0.9em; margin-top:25px;">// Powered by serv00.com //</p>
     </div>
 </body>
@@ -181,68 +181,66 @@ restore_defaults() {
 EOF
 
     chmod 644 "$domain_base/public_html/index.html"
-    green "✅ 默认网站已部署"
-    log "Created default index.html"
+    green "✅ 默认网站页面已生成"
+    log "创建默认 index.html"
 
     echo ""
     green "✅ 默认结构恢复完成"
 }
 
-# === 初始化系统 ===
+# === 初始化系统重置流程 ===
 init_server() {
     clear
     red "┌────────────────────────────────────────────────────────────┐"
-    red "│                    ⚠️  DANGER ZONE ⚠️                       │"
-    red "│           THIS ACTION CANNOT BE UNDONE!                    │"
+    red "│                    ⚠️  危险操作警告 ⚠️                     │"
+    red "│           此操作将不可撤销！                               │"
     red "└────────────────────────────────────────────────────────────┘"
     echo ""
-    yellow "THIS WILL:"
-    echo "  • 🔥 Wipe all cron jobs"
-    echo "  • 💀 Kill all your processes"
-    echo "  • 🧹 Delete almost everything in your home directory"
+    yellow "执行后将进行以下操作："
+    echo "  • 🔥 清空所有定时任务 (cron)"
+    echo "  • 💀 终止当前用户的全部进程"
+    echo "  • 🧹 删除用户目录下的大部分内容"
     echo ""
-    cyan "💡 serv00 自动保留最近 7 天备份（可通过面板恢复）"
+    cyan "💡 serv00 自动保留最近 7 天备份（可在面板中恢复）"
     echo ""
 
-    read -p "$(red 'Proceed with system reset? [y/N]: ')" input
+    read -p "$(red '是否继续执行系统重置？[y/N]: ')" input
     input=${input:-N}
     if [[ ! "$input" =~ ^[Yy]$ ]]; then
-        yellow "🛑 Operation cancelled."
-        log "Operation cancelled by user"
+        yellow "🛑 操作已取消。"
+        log "用户取消操作"
         return 0
     fi
 
     echo ""
-    read -p "$(cyan 'Preserve config files (.bashrc, .ssh, etc)? [Y/n]: ')" saveProfile
+    read -p "$(cyan '是否保留配置文件 (.bashrc, .ssh 等)? [Y/n]: ')" saveProfile
     saveProfile=${saveProfile:-Y}
 
     echo ""
     cyan "════════════════════════════════════════════════════════════"
-    pink "🚀 INITIATING SYSTEM RESET PROTOCOL..."
+    pink "🚀 启动系统重置协议..."
     cyan "════════════════════════════════════════════════════════════"
-    log "=== System reset started ==="
+    log "=== 开始系统重置 ==="
 
-    # 1. Cron
-    echo ""; cyan "[1/5] 🕒 Clearing cron jobs..."; clean_cron
+    # 1. 清理定时任务
+    echo ""; cyan "[1/5] 🕒 正在清理 cron 任务..."; clean_cron
 
-    # 2. 特殊目录
-    echo ""; cyan "[2/5] 🧹 Cleaning cache directories..."
+    # 2. 清理缓存目录
+    echo ""; cyan "[2/5] 🧹 正在清理缓存目录..."
     for d in go .cache .npm .yarn .cargo/registry .local/share/Trash; do
         [ -d "$HOME/$d" ] && clean_directory "$HOME/$d"
     done
 
-    # 3. 主目录清理
-    echo ""; cyan "[3/5] 🗑️  Purging home directory..."
+    # 3. 清理主目录
+    echo ""; cyan "[3/5] 🗑️  正在清理主目录..."
     if [[ "$saveProfile" =~ ^[Yy]$ ]]; then
-        green "→ Preserve mode: keeping dotfiles"
-        # 删除非隐藏文件
+        green "→ 保留模式：保留隐藏文件"
         rm -rf "$HOME"/* 2>/dev/null
-        green "✅ Non-hidden files purged"
-        log "Purged non-hidden files"
+        green "✅ 已清理非隐藏文件"
+        log "清理非隐藏文件"
     else
-        yellow "→ Full purge mode: including dotfiles"
-        # 启用安全 glob
-        set +f  # 确保 glob 开启
+        yellow "→ 完全清理模式：包括隐藏文件"
+        set +f
         shopt -s nullglob dotglob 2>/dev/null || true
         for item in "$HOME"/* "$HOME"/.*; do
             case "$item" in
@@ -251,50 +249,50 @@ init_server() {
             rm -rf "$item" 2>/dev/null
         done
         shopt -u nullglob dotglob 2>/dev/null || true
-        green "✅ Full home directory purged"
-        log "Full home directory purged"
+        green "✅ 已完全清空主目录"
+        log "完全清空主目录"
     fi
 
-    # 4. 恢复默认
-    echo ""; cyan "[4/5] 🏗️  Restoring default structure..."; restore_defaults
+    # 4. 恢复默认结构
+    echo ""; cyan "[4/5] 🏗️  正在恢复默认结构..."; restore_defaults
 
-    # 5. 清理进程（最后）
-    echo ""; cyan "[5/5] 💀 Terminating user processes..."
-    yellow "⚠️  Connection may drop in 3 seconds..."
+    # 5. 清理用户进程
+    echo ""; cyan "[5/5] 💀 正在终止用户进程..."
+    yellow "⚠️  SSH 连接可能在 3 秒内断开..."
     sleep 1 && echo -n "3..." && sleep 1 && echo -n "2..." && sleep 1 && echo "1..."
     kill_user_proc
 
     echo ""
     cyan "════════════════════════════════════════════════════════════"
-    green "✅ SYSTEM RESET COMPLETE"
+    green "✅ 系统重置完成"
     cyan "════════════════════════════════════════════════════════════"
-    log "=== System reset completed ==="
+    log "=== 系统重置完成 ==="
 
     echo ""
-    pink "📌 POST-RESET INFO:"
-    echo "  • Backup: serv00 keeps 7-day snapshots"
-    echo "  • Default site: https://$username.serv00.net"
-    echo "  • Directories created:"
+    pink "📌 重置后信息:"
+    echo "  • 备份: serv00 保留最近 7 天快照"
+    echo "  • 默认网站: https://$username.serv00.net"
+    echo "  • 已创建目录:"
     echo "      ~/mail, ~/repo, ~/domains/$username.serv00.net/{public_html,logs/access}"
-    [ -f "$LOG_FILE" ] && echo "  • Log: $LOG_FILE"
+    [ -f "$LOG_FILE" ] && echo "  • 日志文件: $LOG_FILE"
     echo ""
 }
 
-# === 显示信息 ===
+# === 系统状态显示 ===
 show_info() {
     clear
     cyan "┌────────────────────────────────────────────────────────────┐"
-    cyan "│                🖥️  SYSTEM STATUS REPORT                    │"
+    cyan "│                🖥️  系统状态报告                            │"
     cyan "└────────────────────────────────────────────────────────────┘"
     echo ""
-    echo "👤 User: $(whoami)"
-    echo "🏠 Home: $HOME"
-    echo "📍 PWD: $(pwd)"
+    echo "👤 用户: $(whoami)"
+    echo "🏠 主目录: $HOME"
+    echo "📍 当前路径: $(pwd)"
     echo ""
 
     if command -v df >/dev/null; then
         disk=$(df -h "$HOME" 2>/dev/null | awk 'NR==2 {print $3 "/" $2 " (" $5 ")"}')
-        echo "💾 Disk: $disk"
+        echo "💾 磁盘使用: $disk"
     fi
 
     cron_n=$(crontab -l 2>/dev/null | grep -v '^#' | grep -v '^$' | wc -l)
@@ -303,58 +301,58 @@ show_info() {
     dir_n=$(find "$HOME" -maxdepth 1 -type d 2>/dev/null | wc -l)
 
     echo ""
-    echo "📊 Stats:"
-    echo "  Cron Jobs: $cron_n"
-    echo "  Processes: $proc_n"
-    echo "  Home Files: $file_n"
-    echo "  Home Dirs:  $dir_n"
+    echo "📊 统计信息:"
+    echo "  Cron 任务数: $cron_n"
+    echo "  进程数: $proc_n"
+    echo "  文件数: $file_n"
+    echo "  目录数: $dir_n"
     echo ""
     cyan "────────────────────────────────────────────────────────────"
 }
 
-# === 主菜单 ===
+# === 主菜单界面 ===
 show_menu() {
     clear
     echo ""
     purple "┌────────────────────────────────────────────────────────────┐"
-    purple "│        🌐 serv00 CYBER RESET TERMINAL v3.0                 │"
-    purple "│            「Neon Protocol Activated」                     │"
+    purple "│        🌐 serv00 赛博系统重置终端 v3.0                     │"
+    purple "│            「霓虹协议已激活」                              │"
     purple "└────────────────────────────────────────────────────────────┘"
     echo ""
-    echo "  $(pink "1.") $(cyan "🗑️  FULL SYSTEM RESET")"
-    echo "  $(pink "2.") $(cyan "🕒 CLEAR CRON JOBS")"
-    echo "  $(pink "3.") $(cyan "💀 KILL USER PROCESSES")"
-    echo "  $(pink "4.") $(cyan "📊 SYSTEM STATUS")"
-    echo "  $(pink "5.") $(cyan "🚪 EXIT TERMINAL")"
+    echo "  $(pink "1.") $(cyan "🗑️  执行完整系统重置")"
+    echo "  $(pink "2.") $(cyan "🕒 清空 cron 定时任务")"
+    echo "  $(pink "3.") $(cyan "💀 终止用户进程")"
+    echo "  $(pink "4.") $(cyan "📊 查看系统状态")"
+    echo "  $(pink "5.") $(cyan "🚪 退出终端")"
     echo ""
     cyan "────────────────────────────────────────────────────────────"
-    read -p "$(pink ">> Select option [1-5]: ")" choice
+    read -p "$(pink ">> 请选择操作 [1-5]: ")" choice
 
     case $choice in
         1) init_server ;;
-        2) echo ""; cyan "Executing: Clear cron"; clean_cron ;;
+        2) echo ""; cyan "执行中: 清理 cron"; clean_cron ;;
         3)
-            echo ""; yellow "⚠️  This will kill all your processes (SSH may disconnect)"
-            read -p "$(red "Confirm? [y/N]: ")" c; [[ "$c" =~ ^[Yy]$ ]] && { sleep 2; kill_user_proc; }
+            echo ""; yellow "⚠️  此操作将终止全部用户进程 (SSH 可能断开)"
+            read -p "$(red "确认执行？[y/N]: ")" c; [[ "$c" =~ ^[Yy]$ ]] && { sleep 2; kill_user_proc; }
             ;;
         4) show_info ;;
         5)
-            read -p "$(yellow "Exit terminal? [Y/n]: ")" e; [[ ! "$e" =~ ^[Nn]$ ]] && { green "🔌 Terminating session..."; exit 0; }
+            read -p "$(yellow "确定退出终端？[Y/n]: ")" e; [[ ! "$e" =~ ^[Nn]$ ]] && { green "🔌 结束会话..."; exit 0; }
             ;;
-        *) red "❌ Invalid option"; sleep 1 ;;
+        *) red "❌ 无效选项"; sleep 1 ;;
     esac
 }
 
 # === 信号处理 ===
-trap 'log "Script interrupted by user"; exit 130' INT TERM
+trap 'log "用户中断脚本执行"; exit 130' INT TERM
 
-# === 主程序 ===
+# === 主程序入口 ===
 main() {
     check_env
-    log "=== Script started by $(whoami) ==="
+    log "=== 脚本启动，执行用户: $(whoami) ==="
     while true; do
         show_menu
-        echo ""; read -p "$(cyan "Press ENTER to return to menu...")" -r
+        echo ""; read -p "$(cyan "按 ENTER 返回主菜单...")" -r
     done
 }
 
