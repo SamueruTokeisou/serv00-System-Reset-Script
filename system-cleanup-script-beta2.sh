@@ -112,13 +112,14 @@ restore_web_defaults() {
     local username=$(whoami)
     local domain_dir="$HOME/domains/$username.serv00.net/public_html"
     local logs_dir="$HOME/domains/$username.serv00.net/logs"
+    local access_log_dir="$HOME/domains/$username.serv00.net/logs/access"
     local index_file="$domain_dir/index.html"
     echo "[→] 恢复 Web 默认设置..."
     mkdir -p "$domain_dir" && chmod 755 "$domain_dir"
-    mkdir -p "$logs_dir" && chmod 755 "$logs_dir"  # 添加 logs 目录支持
+    mkdir -p "$access_log_dir" && chmod 755 "$access_log_dir"  # 明确创建 logs/access
     echo "<html><head><title>$username.serv00.net</title></head><body><h1>Welcome</h1></body></html>" > "$index_file"
-    chmod 644 "$index_file" && echo "[✓] 已恢复 $index_file 和 logs 目录"
-    log "Restored web defaults: $index_file and $logs_dir"
+    chmod 644 "$index_file" && echo "[✓] 已恢复 $index_file 和 logs/access 目录"
+    log "Restored web defaults: $index_file and $access_log_dir"
 }
 
 # 系统初始化函数
@@ -205,6 +206,14 @@ init_server() {
         done
         green "✓ 已完全清理主目录"
         log "Cleaned all files including hidden"
+        
+        # 清理后创建 mail 和 repo 目录
+        for dir in "mail" "repo"; do
+            if [ ! -d "$HOME/$dir" ]; then
+                mkdir -p "$HOME/$dir" && chmod 755 "$HOME/$dir" && green "✓ 创建 $HOME/$dir 目录"
+                log "Created directory: $HOME/$dir"
+            fi
+        done
     fi
     
     # 步骤4: 清理进程（最后执行）
