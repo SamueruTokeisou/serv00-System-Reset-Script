@@ -2,7 +2,7 @@
 
 # =============================================================================
 # serv00 系统重置脚本 - 专业版
-# 版本: 4.5
+# 版本: 4.7
 # 说明: 为serv00用户设计的高性能、高可靠性系统重置工具
 # 功能: 系统清理、快照恢复、环境监控、日志审计
 # 注意: 本脚本在用户权限下运行，不会执行需要root权限的操作
@@ -15,7 +15,7 @@ set -o nounset
 # =============================================================================
 # 全局配置
 # =============================================================================
-readonly SCRIPT_VERSION="4.5"
+readonly SCRIPT_VERSION="4.7"
 readonly SCRIPT_NAME="serv00-reset"
 readonly TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 readonly LOG_FILE="$HOME/${SCRIPT_NAME}_${TIMESTAMP}.log"
@@ -424,7 +424,7 @@ system_init() {
     echo ""
 }
 
-# 快照恢复功能 - 修复变量问题并添加退出选项
+# 快照恢复功能 - 使用直接方法解析快照
 snapshot_recovery() {
     print_info "开始快照恢复功能..."
     
@@ -440,54 +440,52 @@ snapshot_recovery() {
     print_info "当前快照目录内容:"
     ls -la 2>/dev/null || true
     
-    # 初始化关联数组
-    declare -A snapshot_paths
-    snapshot_paths=()  # 明确初始化数组
+    # 直接获取符号链接列表，不使用复杂的解析
+    declare -a snapshot_folders
     
-    # 读取快照链接 - 使用更稳健的方法
-    while IFS= read -r line; do
-        if [[ $line =~ ^l.*lrwxr ]]; then
-            # 提取文件名（从行的末尾部分提取）
-            folder=$(echo "$line" | awk '{print $9}')
-            # 提取目标路径（通常在箭头符号后）
-            if [[ $line == *'->'* ]]; then
-                real_path=$(echo "$line" | sed 's/.*-> //')
-            else
-                # 如果没有箭头，使用awk提取第11列
-                real_path=$(echo "$line" | awk '{print $11}')
-            fi
-            
-            if [ -n "$folder" ] && [ -n "$real_path" ]; then
-                # 如果路径不是绝对路径，构建完整路径
-                if [[ "$real_path" != /* ]]; then
-                    real_path="$BACKUP_PATH/$real_path"
+    # 使用 ls -la 和 grep 获取所有符号链接
+    local links_output=$(ls -la 2>/dev/null | grep "^l" || true)
+    
+    if [ -n "$links_output" ]; then
+        # 逐行处理符号链接
+        while IFS= read -r line; do
+            if [ -n "$line" ]; then
+                # 提取符号链接的名称（最后一个字段之前的部分可能包含 ->）
+                local link_name=$(echo "$line" | awk '{print $9}')
+                if [ -n "$link_name" ]; then
+                    snapshot_folders+=("$link_name")
+                    print_info "发现快照: $link_name"
                 fi
-                snapshot_paths["$folder"]="$real_path"
-                print_info "发现快照: $folder -> $real_path"
             fi
-        fi
-    done < <(ls -la 2>/dev/null | grep "^l" || true)
+        done <<< "$links_output"
+    else
+        # 如果没有找到符号链接，列出所有项目
+        for item in *; do
+            if [ -e "$item" ] && [ "$item" != "." ] && [ "$item" != ".." ]; then
+                # 检查是否是符号链接
+                if [ -L "$item" ]; then
+                    snapshot_folders+=("$item")
+                    print_info "发现快照: $item"
+                fi
+            fi
+        done
+    fi
     
-    local size=${#snapshot_paths[@]}
-    local sorted_keys=()
-    
-    # 手动构建排序后的键列表
-    for key in "${!snapshot_paths[@]}"; do
-        sorted_keys+=("$key")
-    done
-    IFS=$'\n' sorted_keys=($(sort -r <<< "${sorted_keys[*]}"))
-    unset IFS
+    local size=${#snapshot_folders[@]}
     
     if [ $size -eq 0 ]; then
         print_warning "未有备份快照!"
         log "没有找到快照"
         
-        # 再次检查目录内容，可能快照格式不同
+        # 再次检查目录内容
         print_info "检查 $BACKUP_PATH 中的所有项目:"
-        for item in "$BACKUP_PATH"/*; do
-            if [ -e "$item" ]; then
-                item_name=$(basename "$item")
-                print_info "  - $item_name"
+        for item in *; do
+            if [ -e "$item" ] && [ "$item" != "." ] && [ "$item" != ".." ]; then
+                if [ -L "$item" ]; then
+                    print_info "  - $item (符号链接)"
+                else
+                    print_info "  - $item (普通文件/目录)"
+                fi
             fi
         done
         return 1
@@ -498,13 +496,11 @@ snapshot_recovery() {
     
     # 显示快照列表
     echo "快照列表:"
-    local i=1
-    for folder in "${sorted_keys[@]}"; do
-        echo "  $i. $folder"
-        # 显示快照创建时间等信息
-        local mod_time=$(stat -c "%y" "$folder" 2>/dev/null || stat -f "%Sm" "$folder" 2>/dev/null || echo "未知时间")
+    for i in "${!snapshot_folders[@]}"; do
+        echo "  $((i+1)). ${snapshot_folders[$i]}"
+        # 尝试获取快照的修改时间
+        local mod_time=$(stat -c "%y" "${snapshot_folders[$i]}" 2>/dev/null || stat -f "%Sm" "${snapshot_folders[$i]}" 2>/dev/null || echo "未知时间")
         echo "     修改时间: $mod_time"
-        ((i++))
     done
     
     echo ""
@@ -523,21 +519,18 @@ snapshot_recovery() {
             # 完整快照恢复
             echo ""
             print_info "可用快照列表:"
-            local i=1
-            declare -a folders
-            for folder in "${sorted_keys[@]}"; do
-                echo "${i}. ${folder}"
-                local mod_time=$(stat -c "%y" "$folder" 2>/dev/null || stat -f "%Sm" "$folder" 2>/dev/null || echo "未知时间")
+            for i in "${!snapshot_folders[@]}"; do
+                echo "$((i+1)). ${snapshot_folders[$i]}"
+                local mod_time=$(stat -c "%y" "${snapshot_folders[$i]}" 2>/dev/null || stat -f "%Sm" "${snapshot_folders[$i]}" 2>/dev/null || echo "未知时间")
                 echo "    修改时间: $mod_time"
-                folders+=("$folder")
-                ((i++))
             done
             
             local retries=$MAX_RETRY
             while [ $retries -gt 0 ]; do
                 read -p "$(print_info "请选择恢复到哪一天(序号): " 2>&1)" input
                 if [[ $input =~ ^[0-9]+$ ]] && [ "$input" -gt 0 ] && [ "$input" -le $size ]; then
-                    local targetFolder="${folders[$((input-1))]}"
+                    local target_index=$((input-1))
+                    local targetFolder="${snapshot_folders[$target_index]}"
                     print_success "你选择的恢复日期是：$targetFolder"
                     break
                 else
@@ -556,7 +549,8 @@ snapshot_recovery() {
             fi
             
             kill_user_processes
-            local srcpath="${snapshot_paths["$targetFolder"]}"
+            # 直接使用快照文件夹名称，系统会自动解析符号链接
+            local srcpath="$BACKUP_PATH/$targetFolder"
             # 使用参考脚本的改进方式清理文件
             rm -rf ~/* >/dev/null 2>&1 || true
             rsync -a "$srcpath"/ ~/ 2>/dev/null || true
@@ -571,44 +565,45 @@ snapshot_recovery() {
                 return 0
             fi
             
-            declare -A foundArr
-            foundArr=()  # 初始化数组
+            # 使用普通数组存储找到的结果
+            declare -a found_folders
+            declare -a found_results
             
-            for folder in "${!snapshot_paths[@]}"; do
-                local path="${snapshot_paths[$folder]}"
+            for i in "${!snapshot_folders[@]}"; do
+                local folder="${snapshot_folders[$i]}"
+                # 使用符号链接的实际路径
+                local path="$BACKUP_PATH/$folder"
                 local results=$(find "$path" -name "$infile" 2>/dev/null || true)
                 if [[ -n "$results" ]]; then
-                    foundArr["$folder"]="$results"
+                    found_folders+=("$folder")
+                    found_results+=("$results")
                 fi
             done
             
-            if [ ${#foundArr[@]} -eq 0 ]; then
+            local found_size=${#found_folders[@]}
+            if [ $found_size -eq 0 ]; then
                 print_warning "在任何快照中都未找到文件: $infile"
                 return 1
             fi
             
-            local i=1
-            local sortedFoundArr=()
-            for key in "${!foundArr[@]}"; do
-                sortedFoundArr+=("$key")
-            done
-            IFS=$'\n' sortedFoundArr=($(sort -r <<< "${sortedFoundArr[*]}"))
-            unset IFS
-            
-            declare -A indexPathArr
+            # 使用普通数组存储索引路径
+            declare -a indexPathArr
             indexPathArr=()  # 初始化数组
             
-            for folder in "${sortedFoundArr[@]}"; do
+            local i=1
+            for j in "${!found_folders[@]}"; do
+                folder="${found_folders[$j]}"
                 echo "$i. $folder:"
-                local results="${foundArr[${folder}]}"
+                results="${found_results[$j]}"
                 # 使用参考脚本的改进方式处理多行结果
                 IFS=$'\n' read -r -d '' -a paths <<<"$results"$'\n'
-                local j=1
+                local k=1
                 for path in "${paths[@]}"; do
                     if [ -n "$path" ]; then
-                        indexPathArr["$i.$j"]="$path"
-                        echo "  $j. $path"
-                        ((j++))
+                        # 使用索引作为键，格式为 "i.k"
+                        indexPathArr+=("$i.$k:$path")
+                        echo "  $k. $path"
+                        ((k++))
                     fi
                 done
                 ((i++))
@@ -631,7 +626,17 @@ snapshot_recovery() {
                     case "$targetDir" in
                         1)
                             for pairNo in "${pairNos[@]}"; do
-                                local srcpath="${indexPathArr[$pairNo]}"
+                                # 从数组中查找匹配的路径
+                                local srcpath=""
+                                for index_path in "${indexPathArr[@]}"; do
+                                    local index_part="${index_path%%:*}"
+                                    local path_part="${index_path#*:}"
+                                    if [ "$index_part" = "$pairNo" ]; then
+                                        srcpath="$path_part"
+                                        break
+                                    fi
+                                done
+                                
                                 if [ -n "$srcpath" ]; then
                                     local user=$(whoami)
                                     local targetPath="${srcpath#*${user}}"
@@ -648,7 +653,17 @@ snapshot_recovery() {
                             local targetPath="$HOME/restore"
                             mkdir -p "$targetPath" 2>/dev/null || true
                             for pairNo in "${pairNos[@]}"; do
-                                local srcpath="${indexPathArr[$pairNo]}"
+                                # 从数组中查找匹配的路径
+                                local srcpath=""
+                                for index_path in "${indexPathArr[@]}"; do
+                                    local index_part="${index_path%%:*}"
+                                    local path_part="${index_path#*:}"
+                                    if [ "$index_part" = "$pairNo" ]; then
+                                        srcpath="$path_part"
+                                        break
+                                    fi
+                                done
+                                
                                 if [ -n "$srcpath" ]; then
                                     cp -r "$srcpath" "$targetPath/" 2>/dev/null || true
                                 fi
