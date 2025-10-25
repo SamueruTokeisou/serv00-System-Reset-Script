@@ -1,4 +1,4 @@
-# 🚀 Serv00 系统重置脚本 - 精简增强版
+# 🚀 Serv00 系统重置脚本
 轻量级、智能化、高性能脚本，专为 Serv00 环境打造的系统重置解决方案
 
 <div align="center" style="margin-bottom: 24px;">
