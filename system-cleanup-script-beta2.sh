@@ -111,11 +111,14 @@ clean_directory() {
 restore_web_defaults() {
     local username=$(whoami)
     local domain_dir="$HOME/domains/$username.serv00.net/public_html"
+    local logs_dir="$HOME/domains/$username.serv00.net/logs"
     local index_file="$domain_dir/index.html"
     echo "[→] 恢复 Web 默认设置..."
     mkdir -p "$domain_dir" && chmod 755 "$domain_dir"
+    mkdir -p "$logs_dir" && chmod 755 "$logs_dir"  # 添加 logs 目录支持
     echo "<html><head><title>$username.serv00.net</title></head><body><h1>Welcome</h1></body></html>" > "$index_file"
-    chmod 644 "$index_file" && echo "[✓] 已恢复 $index_file"
+    chmod 644 "$index_file" && echo "[✓] 已恢复 $index_file 和 logs 目录"
+    log "Restored web defaults: $index_file and $logs_dir"
 }
 
 # 系统初始化函数
@@ -191,7 +194,8 @@ init_server() {
         yellow "→ 完全清理模式（包括隐藏文件）"
         for item in "$HOME"/{*,.[^.]*}; do
             if [ -e "$item" ] && [ "$item" != "$HOME/." ] && [ "$item" != "$HOME/.." ] \
-               && [ "$item" != "$LOG_FILE" ]; then
+               && [ "$item" != "$LOG_FILE" ] && [ "$item" != "$HOME/domains" ] \
+               && [ "$item" != "$HOME/mail" ] && [ "$item" != "$HOME/repo" ]; then
                 if rm -rf "$item" 2>/dev/null; then
                     log "Deleted: $item"
                 else
@@ -280,8 +284,8 @@ show_menu() {
     echo "  ${GREEN}1.${RESET} 🗑️  初始化系统（清理数据）"
     echo "  ${GREEN}2.${RESET} ⏰  仅清理 cron 任务"
     echo "  ${GREEN}3.${RESET} 🔄  仅清理用户进程"
-    echo "  ${GREEN}4.${RESET} 📊  查看环境信息"
-    echo "  ${GREEN}5.${RESET} 🌐  恢复 Web 默认设置"
+    echo "  ${GREEN}4.${RESET} 🌐  恢复 Web 默认设置"
+    echo "  ${GREEN}5.${RESET} 📊  查看环境信息"
     echo "  ${GREEN}6.${RESET} 🚪  退出"
     echo ""
     blue "═══════════════════════════════════════════════════════════════════"
@@ -304,8 +308,8 @@ show_menu() {
                 yellow "操作已取消"
             fi
             ;;
-        4) show_info ;;
-        5) restore_web_defaults ;;
+        4) restore_web_defaults ;;
+        5) show_info ;;
         6)
             echo ""
             read -p "$(yellow '确认退出脚本？[y/n] [y]: ')" exit_confirm
