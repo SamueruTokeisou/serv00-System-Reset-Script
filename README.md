@@ -42,7 +42,7 @@
  ![备份目录](https://github.com/SamueruTokeisou/serv00-System-Reset-Script/blob/main/%E5%A4%87%E4%BB%BD%E7%9B%AE%E5%BD%95.png?raw=true)
 - 原文件目录:
  ![原文件目录](https://github.com/SamueruTokeisou/serv00-System-Reset-Script/blob/main/serv00%E5%8E%9F%E7%9B%AE%E5%BD%95.png?raw=true)
-重置后文件夹缺失可以手动添加 如上图.文件夹几乎为空文件夹.
+- 重置后文件夹缺失可以手动添加 如上图.文件夹几乎为空文件夹.
 public_html/index.html的index.html 可加可不加.
 username.serv00.net/public_html 需要把"username"更换为自己的用户名
 
