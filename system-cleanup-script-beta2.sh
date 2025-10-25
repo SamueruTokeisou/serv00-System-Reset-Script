@@ -76,8 +76,8 @@ kill_user_proc() {
     local user=$(whoami)
     log "清理用户进程 (保护脚本 PID: $SCRIPT_PID)"
     
-    # 获取所有用户进程，排除当前脚本
-    local processes=$(ps -u "$user" -o pid= | grep -v "^[[:space:]]*$SCRIPT_PID$")
+    # FreeBSD 使用 -U 参数指定用户
+    local processes=$(ps -U "$user" -o pid= 2>/dev/null | grep -v "^[[:space:]]*$SCRIPT_PID$")
     
     if [ -z "$processes" ]; then
         yellow "⚠ 未找到需要清理的进程"
@@ -86,6 +86,10 @@ kill_user_proc() {
     
     local count=0
     for pid in $processes; do
+        # 跳过空行
+        if [ -z "$pid" ]; then
+            continue
+        fi
         if kill -9 "$pid" 2>/dev/null; then
             ((count++))
         fi
