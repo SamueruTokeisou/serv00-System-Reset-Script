@@ -41,6 +41,7 @@ log() {
 
 # 环境快速检查
 check_env() {
+    # 检查必要命令
     for cmd in whoami crontab pkill rm; do
         if ! command -v $cmd &> /dev/null; then
             red "错误: 缺少必要命令 $cmd"
@@ -70,6 +71,7 @@ kill_user_proc() {
     local user=$(whoami)
     log "清理用户进程 (保护脚本 PID: $SCRIPT_PID)"
     
+    # 获取所有用户进程，排除当前脚本
     local processes=$(ps -u "$user" -o pid= | grep -v "^[[:space:]]*$SCRIPT_PID$")
     
     if [ -z "$processes" ]; then
@@ -111,7 +113,6 @@ clean_directory() {
 restore_web_defaults() {
     local username=$(whoami)
     local domain_dir="$HOME/domains/$username.serv00.net/public_html"
-    local logs_dir="$HOME/domains/$username.serv00.net/logs"
     local access_log_dir="$HOME/domains/$username.serv00.net/logs/access"
     local index_file="$domain_dir/index.html"
     echo "[→] 恢复 Web 默认设置..."
@@ -168,6 +169,7 @@ init_server() {
         clean_directory "$HOME/go"
     fi
     
+    # 清理常见缓存目录
     for cache_dir in ".cache" ".npm" ".yarn" ".cargo/registry" ".local/share/Trash"; do
         if [ -d "$HOME/$cache_dir" ]; then
             clean_directory "$HOME/$cache_dir"
@@ -180,6 +182,8 @@ init_server() {
     
     if [[ "$saveProfile" == "y" ]] || [[ "$saveProfile" == "Y" ]]; then
         green "→ 保留隐藏配置文件模式"
+        
+        # 删除非隐藏文件和目录
         for item in "$HOME"/*; do
             if [ -e "$item" ]; then
                 if rm -rf "$item" 2>/dev/null; then
@@ -189,10 +193,13 @@ init_server() {
                 fi
             fi
         done
+        
         green "✓ 已清理非隐藏文件（保留配置）"
         log "Cleaned non-hidden files"
     else
         yellow "→ 完全清理模式（包括隐藏文件）"
+        
+        # 删除所有文件（保护日志，保留 domains, mail, repo）
         for item in "$HOME"/{*,.[^.]*}; do
             if [ -e "$item" ] && [ "$item" != "$HOME/." ] && [ "$item" != "$HOME/.." ] \
                && [ "$item" != "$LOG_FILE" ] && [ "$item" != "$HOME/domains" ] \
@@ -204,6 +211,7 @@ init_server() {
                 fi
             fi
         done
+        
         green "✓ 已完全清理主目录"
         log "Cleaned all files including hidden"
         
@@ -250,21 +258,30 @@ show_info() {
     echo "主目录: $HOME"
     echo "当前路径: $(pwd)"
     echo ""
+    
+    # 磁盘使用情况
     if command -v df &> /dev/null; then
         echo "磁盘使用:"
         df -h "$HOME" 2>/dev/null | awk 'NR==2 {print "  已用: " $3 " / 总计: " $2 " (" $5 ")"}'
     fi
     echo ""
+    
+    # Cron 任务数量
     local cron_count=$(crontab -l 2>/dev/null | grep -v '^#' | grep -v '^$' | wc -l)
     echo "Cron 任务数: $cron_count"
+    
+    # 用户进程数
     local proc_count=$(ps -u $(whoami) 2>/dev/null | wc -l)
     echo "用户进程数: $proc_count"
     echo ""
+    
+    # 主目录文件统计
     local file_count=$(find "$HOME" -maxdepth 1 -type f 2>/dev/null | wc -l)
     local dir_count=$(find "$HOME" -maxdepth 1 -type d 2>/dev/null | wc -l)
     echo "主目录统计:"
     echo "  文件数: $file_count"
     echo "  目录数: $dir_count"
+    
     blue "════════════════════════════════════════════════════════"
 }
 
@@ -290,20 +307,26 @@ show_menu() {
     echo ""
     blue "═══════════════════════════[ 主菜单 ]══════════════════════════════"
     echo ""
-    echo "  ${GREEN}1.${RESET} 🗑️  初始化系统（清理数据）"
-    echo "  ${GREEN}2.${RESET} ⏰  仅清理 cron 任务"
-    echo "  ${GREEN}3.${RESET} 🔄  仅清理用户进程"
-    echo "  ${GREEN}4.${RESET} 🌐  恢复 Web 默认设置"
-    echo "  ${GREEN}5.${RESET} 📊  查看环境信息"
-    echo "  ${GREEN}6.${RESET} 🚪  退出"
+    echo "  ${GREEN}1.${RESET} 初始化系统（清理数据）"
+    echo "  ${GREEN}2.${RESET} 仅清理 cron 任务"
+    echo "  ${GREEN}3.${RESET} 仅清理用户进程"
+    echo "  ${GREEN}4.${RESET} 恢复 Web 默认设置"
+    echo "  ${GREEN}5.${RESET} 查看环境信息"
+    echo "  ${GREEN}6.${RESET} 退出"
     echo ""
     blue "═══════════════════════════════════════════════════════════════════"
     echo ""
     read -p "请选择操作 [1-6]: " choice
 
     case $choice in
-        1) init_server ;;
-        2) clean_cron ;;
+        1)
+            init_server
+            ;;
+        2)
+            echo ""
+            blue "执行: 清理 cron 任务"
+            clean_cron
+            ;;
         3)
             echo ""
             yellow "警告: 此操作将终止所有用户进程（可能断开连接）"
@@ -317,8 +340,12 @@ show_menu() {
                 yellow "操作已取消"
             fi
             ;;
-        4) restore_web_defaults ;;
-        5) show_info ;;
+        4)
+            restore_web_defaults
+            ;;
+        5)
+            show_info
+            ;;
         6)
             echo ""
             read -p "$(yellow '确认退出脚本？[y/n] [y]: ')" exit_confirm
@@ -329,7 +356,10 @@ show_menu() {
                 exit 0
             fi
             ;;
-        *) red "✗ 无效的选择，请输入 1-6" ;;
+        *)
+            red "✗ 无效的选择，请输入 1-6"
+            sleep 1
+            ;;
     esac
 }
 
