@@ -39,6 +39,7 @@
 
 - ✅ **零备份设计**：充分利用 Serv00 自带的 7 天自动备份机制
 - 备份文件目录:![备份目录](https://github.com/SamueruTokeisou/serv00-System-Reset-Script/blob/main/%E5%A4%87%E4%BB%BD%E7%9B%AE%E5%BD%95.png?raw=true)
+- 原文件目录:![原文件目录](https://github.com/SamueruTokeisou/serv00-System-Reset-Script/blob/main/%E5%A4%87%E4%BB%BD%E7%9B%AE%E5%BD%95.png?raw=true)https://github.com/SamueruTokeisou/serv00-System-Reset-Script/blob/main/serv00%E5%8E%9F%E7%9B%AE%E5%BD%95.png?raw=true
 - ✅ **进程自保护**：解决原版脚本"自杀"问题，确保清理完整执行
 - ✅ **智能错误处理**：每个操作都有状态反馈和异常处理
 - ✅ **模块化设计**：支持独立执行 cron 清理、进程管理等功能
