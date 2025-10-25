@@ -2,7 +2,7 @@
 
 # =============================================================================
 # serv00 系统重置脚本 - 专业版
-# 版本: 4.1
+# 版本: 4.4
 # 说明: 为serv00用户设计的高性能、高可靠性系统重置工具
 # 功能: 系统清理、快照恢复、环境监控、日志审计
 # 注意: 本脚本在用户权限下运行，不会执行需要root权限的操作
@@ -15,7 +15,7 @@ set -o nounset
 # =============================================================================
 # 全局配置
 # =============================================================================
-readonly SCRIPT_VERSION="4.1"
+readonly SCRIPT_VERSION="4.4"
 readonly SCRIPT_NAME="serv00-reset"
 readonly TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 readonly LOG_FILE="$HOME/${SCRIPT_NAME}_${TIMESTAMP}.log"
@@ -424,7 +424,7 @@ system_init() {
     echo ""
 }
 
-# 快照恢复功能 - 参考脚本的改进版本
+# 快照恢复功能 - 修复显示问题并添加退出选项
 snapshot_recovery() {
     print_info "开始快照恢复功能..."
     
@@ -435,18 +435,37 @@ snapshot_recovery() {
     fi
     
     cd "$BACKUP_PATH"
+    
+    # 检查并显示目录内容
+    print_info "当前快照目录内容:"
+    ls -la 2>/dev/null || true
+    
+    # 读取快照链接 - 使用更稳健的方法
     declare -A snapshot_paths
     
-    # 读取快照链接 - 参考脚本的改进方式
-    while read -r line; do
-        if [[ $line =~ lrwxr ]]; then
+    # 使用 ls -la 命令获取符号链接信息
+    while IFS= read -r line; do
+        if [[ $line =~ ^l.*lrwxr ]]; then
+            # 提取文件名（从行的末尾部分提取）
             folder=$(echo "$line" | awk '{print $9}')
-            real_path=$(echo "$line" | awk '{print $11}')
+            # 提取目标路径（通常在箭头符号后）
+            if [[ $line == *'->'* ]]; then
+                real_path=$(echo "$line" | sed 's/.*-> //')
+            else
+                # 如果没有箭头，使用awk提取第11列
+                real_path=$(echo "$line" | awk '{print $11}')
+            fi
+            
             if [ -n "$folder" ] && [ -n "$real_path" ]; then
+                # 如果路径不是绝对路径，构建完整路径
+                if [[ "$real_path" != /* ]]; then
+                    real_path="$BACKUP_PATH/$real_path"
+                fi
                 snapshot_paths["$folder"]="$real_path"
+                print_info "发现快照: $folder -> $real_path"
             fi
         fi
-    done < <(ls -trl 2>/dev/null | grep -F "lrwxr" 2>/dev/null)
+    done < <(ls -la 2>/dev/null | grep "^l" || true)
     
     local size=${#snapshot_paths[@]}
     local sorted_keys=($(printf '%s\n' "${!snapshot_paths[@]}" | sort -r))
@@ -454,17 +473,44 @@ snapshot_recovery() {
     if [ $size -eq 0 ]; then
         print_warning "未有备份快照!"
         log "没有找到快照"
+        
+        # 再次检查目录内容，可能快照格式不同
+        print_info "检查 $BACKUP_PATH 中的所有项目:"
+        for item in "$BACKUP_PATH"/*; do
+            if [ -e "$item" ]; then
+                item_name=$(basename "$item")
+                print_info "  - $item_name"
+            fi
+        done
         return 1
     fi
     
     echo ""
     print_info "找到 $size 个快照"
+    
+    # 显示快照列表
+    echo "快照列表:"
+    local i=1
+    for folder in "${sorted_keys[@]}"; do
+        echo "  $i. $folder"
+        # 显示快照创建时间等信息
+        local mod_time=$(stat -c "%y" "$folder" 2>/dev/null || stat -f "%Sm" "$folder" 2>/dev/null || echo "未知时间")
+        echo "     修改时间: $mod_time"
+        ((i++))
+    done
+    
+    echo ""
     echo "选择你需要恢复的内容:"
     echo "1. 完整快照恢复"
     echo "2. 恢复某个文件或目录"
-    read -p "$(print_info "请选择 [1-2]: " 2>&1)" input
+    echo "0. 退出此功能"
+    read -p "$(print_info "请选择 [0-2]: " 2>&1)" input
     
     case "$input" in
+        0)
+            print_info "退出快照恢复功能"
+            return 0
+            ;;
         1)
             # 完整快照恢复
             echo ""
@@ -473,6 +519,8 @@ snapshot_recovery() {
             declare -a folders
             for folder in "${sorted_keys[@]}"; do
                 echo "${i}. ${folder}"
+                local mod_time=$(stat -c "%y" "$folder" 2>/dev/null || stat -f "%Sm" "$folder" 2>/dev/null || echo "未知时间")
+                echo "    修改时间: $mod_time"
                 folders+=("$folder")
                 ((i++))
             done
@@ -518,7 +566,7 @@ snapshot_recovery() {
             declare -A foundArr
             for folder in "${!snapshot_paths[@]}"; do
                 local path="${snapshot_paths[$folder]}"
-                local results=$(find "$path" -name "$infile" 2>/dev/null)
+                local results=$(find "$path" -name "$infile" 2>/dev/null || true)
                 if [[ -n "$results" ]]; then
                     foundArr["$folder"]="$results"
                 fi
@@ -604,7 +652,8 @@ snapshot_recovery() {
             done
             ;;
         *)
-            print_error "无效选择"
+            print_error "无效选择，返回主菜单"
+            return 0
             ;;
     esac
 }
@@ -648,7 +697,7 @@ show_system_info() {
     
     # 快照统计
     if [ -d "$BACKUP_PATH" ]; then
-        local snapshot_count=$(ls -trl "$BACKUP_PATH" 2>/dev/null | grep -F "lrwxr" | wc -l 2>/dev/null)
+        local snapshot_count=$(ls -la "$BACKUP_PATH" 2>/dev/null | grep -c "^l" 2>/dev/null || echo 0)
         echo "  快照数量: ${snapshot_count:-0}"
     else
         echo "  快照数量: 0 (未找到快照目录)"
