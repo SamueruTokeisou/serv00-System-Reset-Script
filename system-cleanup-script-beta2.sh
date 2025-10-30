@@ -1,20 +1,19 @@
 #!/bin/bash
 
-# serv00 系统重置脚本 - 终极增强版
-# 版本: 4.0 Ultimate Edition
+# serv00 系统重置脚本 - 优化版
+# 版本: 4.1 Optimized Edition
 # 适配: FreeBSD (serv00.com)
-# 作者: Tokeisou Samueru
+# 作者: Tokeisou Samueru (优化版)
 
 set -o pipefail
 
-# === 颜色定义（赛博朋克霓虹色系）===
-NEON_PURPLE='\033[38;5;129m'   # 主色调：霓虹紫
-NEON_CYAN='\033[38;5;51m'      # 辅助色：霓虹青
-NEON_PINK='\033[38;5;201m'     # 点缀色：霓虹粉
-NEON_GREEN='\033[38;5;46m'     # 状态色：霓虹绿
-NEON_YELLOW='\033[38;5;226m'   # 警示色：明黄
-NEON_RED='\033[38;5;196m'      # 危险色：警报红
-NEON_BLUE='\033[38;5;39m'      # 信息色：霓虹蓝
+# === 颜色定义（精简版）===
+RED='\033[31m'
+GREEN='\033[32m'
+YELLOW='\033[33m'
+BLUE='\033[34m'
+PURPLE='\033[35m'
+CYAN='\033[36m'
 RESET='\033[0m'
 
 # 检测终端颜色支持
@@ -33,16 +32,15 @@ color() {
         echo "$*"
     fi
 }
-purple() { color "$NEON_PURPLE" "$1"; }
-cyan()   { color "$NEON_CYAN" "$1"; }
-pink()   { color "$NEON_PINK" "$1"; }
-green()  { color "$NEON_GREEN" "$1"; }
-yellow() { color "$NEON_YELLOW" "$1"; }
-red()    { color "$NEON_RED" "$1"; }
-blue()   { color "$NEON_BLUE" "$1"; }
+purple() { color "$PURPLE" "$1"; }
+cyan()   { color "$CYAN" "$1"; }
+green()  { color "$GREEN" "$1"; }
+yellow() { color "$YELLOW" "$1"; }
+red()    { color "$RED" "$1"; }
+blue()   { color "$BLUE" "$1"; }
 
 # === 配置区 ===
-SCRIPT_VERSION="4.0"
+SCRIPT_VERSION="4.1"
 LOG_DIR="$HOME/.serv00_logs"
 LOG_FILE="$LOG_DIR/reset_$(date +%Y%m%d_%H%M%S).log"
 BACKUP_LIST="$LOG_DIR/backup_list.txt"
@@ -80,10 +78,10 @@ show_progress() {
     [ "$current" -eq "$total" ] && echo ""
 }
 
-# === 环境检查（增强版）===
+# === 环境检查（优化版）===
 check_env() {
     local missing_cmds=()
-    for cmd in whoami crontab ps rm mkdir chmod find df awk; do
+    for cmd in whoami crontab ps rm mkdir chmod find df awk grep; do
         if ! command -v "$cmd" >/dev/null 2>&1; then
             missing_cmds+=("$cmd")
         fi
@@ -95,33 +93,52 @@ check_env() {
         exit 1
     fi
     
-    # 检查是否在 serv00 环境
+    # 检查是否在 serv00 环境（更严格的检查）
     if [[ ! "$HOME" =~ serv00 ]] && [[ ! -d "$HOME/domains" ]]; then
         yellow "⚠️  警告: 当前似乎不在 serv00 环境"
         read -p "是否继续？[y/N]: " confirm
         [[ ! "$confirm" =~ ^[Yy]$ ]] && exit 0
     fi
+    
+    # 检查是否有足够权限
+    if [ ! -w "$HOME" ]; then
+        red "❌ 错误: 没有写入主目录的权限"
+        exit 1
+    fi
 }
 
-# === 备份重要文件列表 ===
+# === 备份重要文件列表（优化版）===
 create_backup_list() {
     log_info "创建备份清单"
     {
         echo "=== 重置前文件清单 ==="
         echo "时间: $(date '+%Y-%m-%d %H:%M:%S')"
         echo "用户: $(whoami)"
+        echo "脚本版本: $SCRIPT_VERSION"
+        echo ""
+        echo "=== 系统信息 ==="
+        echo "主目录: $HOME"
+        echo "当前路径: $(pwd)"
         echo ""
         echo "=== Cron 任务 ==="
-        crontab -l 2>/dev/null || echo "无 cron 任务"
+        if crontab -l 2>/dev/null; then
+            crontab -l 2>/dev/null
+        else
+            echo "无 cron 任务"
+        fi
         echo ""
         echo "=== 进程列表 ==="
-        ps -U "$(whoami)" 2>/dev/null || echo "无法获取进程列表"
+        ps -U "$(whoami)" -o pid,ppid,cmd --no-headers 2>/dev/null || echo "无法获取进程列表"
         echo ""
         echo "=== 目录结构 ==="
         find "$HOME" -maxdepth 2 -type d 2>/dev/null | head -50
         echo ""
         echo "=== 磁盘使用 ==="
         df -h "$HOME" 2>/dev/null
+        echo ""
+        echo "=== 文件统计 ==="
+        find "$HOME" -type f 2>/dev/null | wc -l | awk '{print "总文件数: " $1}'
+        find "$HOME" -type d 2>/dev/null | wc -l | awk '{print "总目录数: " $1}'
     } > "$BACKUP_LIST" 2>/dev/null
     
     if [ -f "$BACKUP_LIST" ]; then
@@ -130,7 +147,7 @@ create_backup_list() {
     fi
 }
 
-# === 清空 Cron 任务 ===
+# === 清空 Cron 任务（优化版）===
 clean_cron() {
     log_info "开始清理 cron 任务"
     
@@ -138,6 +155,8 @@ clean_cron() {
     local cron_backup="$LOG_DIR/cron_backup_$(date +%Y%m%d_%H%M%S).txt"
     if crontab -l > "$cron_backup" 2>/dev/null; then
         blue "  💾 已备份 cron 到: $cron_backup"
+    else
+        log_info "当前无 cron 任务"
     fi
     
     if crontab -r 2>/dev/null; then
@@ -154,7 +173,7 @@ clean_cron() {
     fi
 }
 
-# === 终止用户进程（智能版）===
+# === 终止用户进程（优化版）===
 kill_user_proc() {
     local user=$(whoami)
     log_info "开始清理用户进程 (排除 PID: $SCRIPT_PID)"
@@ -162,10 +181,13 @@ kill_user_proc() {
     local pids=()
     local count=0
     
-    # 收集进程列表
+    # 收集进程列表（排除系统进程）
     while IFS= read -r pid; do
         [[ -z "$pid" || "$pid" == "$SCRIPT_PID" ]] && continue
-        pids+=("$pid")
+        # 额外检查进程是否属于当前用户
+        if ps -p "$pid" -o user= 2>/dev/null | grep -q "$user"; then
+            pids+=("$pid")
+        fi
     done < <(ps -U "$user" -o pid= 2>/dev/null)
     
     local total=${#pids[@]}
@@ -180,6 +202,8 @@ kill_user_proc() {
     for pid in "${pids[@]}"; do
         if kill -9 "$pid" 2>/dev/null; then
             ((count++))
+        else
+            log_warn "无法终止进程 $pid"
         fi
         show_progress "$count" "$total" "终止进程中..."
     done
@@ -188,12 +212,18 @@ kill_user_proc() {
     log_success "成功终止 $count 个进程"
 }
 
-# === 智能目录清理 ===
+# === 智能目录清理（优化版）===
 clean_directory() {
     local dir="$1"
     local name="$2"
     
     if [ ! -d "$dir" ]; then
+        return 0
+    fi
+    
+    # 检查目录是否为空
+    if [ -z "$(ls -A "$dir" 2>/dev/null)" ]; then
+        green "  ✅ $name 已为空，跳过"
         return 0
     fi
     
@@ -208,7 +238,7 @@ clean_directory() {
     fi
 }
 
-# === 选择性清理（新功能）===
+# === 选择性清理（优化版）===
 selective_clean() {
     clear
     cyan "┌────────────────────────────────────────────────────────────┐"
@@ -217,10 +247,11 @@ selective_clean() {
     echo ""
     
     local options=(
-        "缓存目录 (.cache, .npm, .yarn)"
-        "编程环境 (go, .cargo, node_modules)"
-        "临时文件 (tmp, .local/share/Trash)"
-        "日志文件 (*.log)"
+        "缓存目录 (.cache, .npm, .yarn, .cargo)"
+        "临时文件 (tmp, .tmp, /tmp/*)"
+        "日志文件 (*.log, logs/*)"
+        "编程环境 (go, node_modules)"
+        "下载目录 (Downloads, .wget-hsts)"
         "全部以上"
     )
     
@@ -232,8 +263,8 @@ selective_clean() {
     
     read -p "请输入选项 (如: 1 3 5): " choices
     
-    if [[ "$choices" == *"5"* ]] || [[ "$choices" == *"全"* ]]; then
-        choices="1 2 3 4"
+    if [[ "$choices" == *"6"* ]] || [[ "$choices" == *"全"* ]]; then
+        choices="1 2 3 4 5"
     fi
     
     echo ""
@@ -243,26 +274,34 @@ selective_clean() {
         case $choice in
             1)
                 echo ""; blue "[1] 清理缓存目录..."
-                clean_directory "$HOME/.cache" "缓存"
+                clean_directory "$HOME/.cache" "缓存目录"
                 clean_directory "$HOME/.npm" "NPM 缓存"
                 clean_directory "$HOME/.yarn" "Yarn 缓存"
+                clean_directory "$HOME/.cargo/registry" "Cargo 缓存"
+                clean_directory "$HOME/.cargo/git" "Cargo Git 缓存"
                 ;;
             2)
-                echo ""; blue "[2] 清理编程环境..."
+                echo ""; blue "[2] 清理临时文件..."
+                clean_directory "$HOME/tmp" "临时目录"
+                clean_directory "$HOME/.tmp" "隐藏临时目录"
+                # 注意：不清理系统 /tmp 目录
+                ;;
+            3)
+                echo ""; blue "[3] 清理日志文件..."
+                find "$HOME" -name "*.log" -type f -delete 2>/dev/null
+                clean_directory "$HOME/logs" "日志目录"
+                ;;
+            4)
+                echo ""; blue "[4] 清理编程环境..."
                 clean_directory "$HOME/go" "Go 环境"
-                clean_directory "$HOME/.cargo/registry" "Cargo 缓存"
                 find "$HOME" -name "node_modules" -type d -exec rm -rf {} + 2>/dev/null
                 green "  ✅ node_modules 已清理"
                 ;;
-            3)
-                echo ""; blue "[3] 清理临时文件..."
-                clean_directory "$HOME/tmp" "临时目录"
-                clean_directory "$HOME/.local/share/Trash" "回收站"
-                ;;
-            4)
-                echo ""; blue "[4] 清理日志文件..."
-                find "$HOME" -name "*.log" -type f -delete 2>/dev/null
-                green "  ✅ 日志文件已清理"
+            5)
+                echo ""; blue "[5] 清理下载目录..."
+                clean_directory "$HOME/Downloads" "下载目录"
+                rm -f "$HOME/.wget-hsts" 2>/dev/null
+                green "  ✅ 下载相关文件已清理"
                 ;;
         esac
     done
@@ -272,203 +311,119 @@ selective_clean() {
     log_success "选择性清理完成: $choices"
 }
 
-# === 恢复默认结构（增强版）===
+# === 恢复默认结构（优化版）===
 restore_defaults() {
     local username=$(whoami)
     log_info "开始恢复默认目录结构"
 
     cyan "  🏗️  创建基础目录..."
-    mkdir -p "$HOME/mail" "$HOME/repo" && chmod 755 "$HOME/mail" "$HOME/repo"
-    green "  ✅ 已创建 ~/mail 与 ~/repo"
+    
+    # 创建基础目录结构
+    local base_dirs=("mail" "repo" "logs" "tmp")
+    for dir in "${base_dirs[@]}"; do
+        if [ ! -d "$HOME/$dir" ]; then
+            mkdir -p "$HOME/$dir" && chmod 755 "$HOME/$dir"
+            green "  ✅ 已创建 ~/$dir"
+        else
+            green "  ✅ ~/$dir 已存在"
+        fi
+    done
 
+    # 创建域名目录结构
     local domain_base="$HOME/domains/$username.serv00.net"
-    mkdir -p "$domain_base/public_html" "$domain_base/logs/access"
+    mkdir -p "$domain_base/public_html" "$domain_base/logs/access" "$domain_base/cgi-bin"
     chmod -R 755 "$domain_base"
 
-    # 增强版默认首页
+    # 创建默认首页
     cat > "$domain_base/public_html/index.html" <<'EOF'
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Online - Serv00</title>
+    <title>Serv00 Reset Complete</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-            color: #00ffea;
-            font-family: 'Courier New', 'Consolas', monospace;
-            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
             display: flex;
-            align-items: center;
             justify-content: center;
-            overflow: hidden;
+            align-items: center;
+            min-height: 100vh;
+            color: white;
         }
-        .cyber-container {
-            position: relative;
-            width: 90%;
-            max-width: 700px;
+        .container {
+            text-align: center;
+            background: rgba(255,255,255,0.1);
             padding: 40px;
-        }
-        .cyber-box {
-            border: 2px solid #ff00ff;
-            box-shadow: 
-                0 0 20px rgba(255, 0, 255, 0.5),
-                inset 0 0 15px rgba(0, 255, 255, 0.2);
-            padding: 40px;
-            border-radius: 12px;
-            background: rgba(15, 12, 41, 0.8);
+            border-radius: 15px;
             backdrop-filter: blur(10px);
-            position: relative;
-        }
-        .cyber-box::before {
-            content: '';
-            position: absolute;
-            top: -2px; left: -2px; right: -2px; bottom: -2px;
-            background: linear-gradient(45deg, #ff00ff, #00ffff, #ff00ff);
-            border-radius: 12px;
-            opacity: 0;
-            animation: border-glow 3s ease-in-out infinite;
-            z-index: -1;
-        }
-        @keyframes border-glow {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 0.3; }
+            border: 1px solid rgba(255,255,255,0.2);
         }
         h1 {
+            margin-top: 0;
             font-size: 2.5em;
-            text-align: center;
-            text-shadow: 
-                0 0 10px #ff00ff,
-                0 0 20px #ff00ff,
-                0 0 30px #ff00ff;
-            margin-bottom: 30px;
-            animation: glitch 3s infinite;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
-        @keyframes glitch {
-            0%, 90%, 100% { text-shadow: 0 0 10px #00ffff; }
-            25% { text-shadow: -3px 0 #ff00ff, 3px 0 #00ffff; }
-            75% { text-shadow: 3px 0 #ff00ff, -3px 0 #00ffff; }
-        }
-        .status-line {
-            display: flex;
-            justify-content: space-between;
-            padding: 15px 0;
-            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
-            font-size: 1.1em;
-        }
-        .status-line:last-child { border-bottom: none; }
-        .status-label { opacity: 0.8; }
-        .status-value { 
-            color: #00ff00;
-            font-weight: bold;
-            text-shadow: 0 0 5px #00ff00;
-        }
-        .pulse {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            background: #00ff00;
-            border-radius: 50%;
-            margin-right: 8px;
-            animation: pulse 2s ease-in-out infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; box-shadow: 0 0 5px #00ff00; }
-            50% { opacity: 0.3; box-shadow: 0 0 15px #00ff00; }
-        }
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 0, 255, 0.3);
-            font-size: 0.9em;
-            opacity: 0.7;
-        }
-        .particles {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: -1;
-        }
-        .particle {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: #00ffff;
-            border-radius: 50%;
-            animation: float 10s linear infinite;
-        }
-        @keyframes float {
-            0% { transform: translateY(100vh) translateX(0); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
+        .status {
+            background: rgba(0,255,0,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
         }
     </style>
 </head>
 <body>
-    <div class="particles" id="particles"></div>
-    <div class="cyber-container">
-        <div class="cyber-box">
-            <h1>🌐 SYSTEM ONLINE</h1>
-            <div class="status-line">
-                <span class="status-label">服务器状态</span>
-                <span class="status-value"><span class="pulse"></span>正常运行</span>
-            </div>
-            <div class="status-line">
-                <span class="status-label">域名</span>
-                <span class="status-value" id="domain">加载中...</span>
-            </div>
-            <div class="status-line">
-                <span class="status-label">系统时间</span>
-                <span class="status-value" id="time">--:--:--</span>
-            </div>
-            <div class="footer">
-                <p>// Powered by Serv00.com //</p>
-                <p style="margin-top: 10px; font-size: 0.85em;">Ready for deployment</p>
-            </div>
+    <div class="container">
+        <h1>✅ 系统重置完成</h1>
+        <div class="status">
+            <h2>系统已就绪</h2>
+            <p>您的 Serv00 服务器已重置</p>
         </div>
+        <p>开始部署您的应用吧！</p>
     </div>
-    <script>
-        // 粒子效果
-        const particles = document.getElementById('particles');
-        for(let i = 0; i < 30; i++) {
-            const p = document.createElement('div');
-            p.className = 'particle';
-            p.style.left = Math.random() * 100 + '%';
-            p.style.animationDelay = Math.random() * 10 + 's';
-            particles.appendChild(p);
-        }
-        
-        // 显示域名
-        document.getElementById('domain').textContent = window.location.hostname;
-        
-        // 实时时钟
-        function updateTime() {
-            const now = new Date();
-            const timeStr = now.toTimeString().split(' ')[0];
-            document.getElementById('time').textContent = timeStr;
-        }
-        updateTime();
-        setInterval(updateTime, 1000);
-    </script>
 </body>
 </html>
 EOF
 
     chmod 644 "$domain_base/public_html/index.html"
-    green "  ✅ 增强版默认页面已生成"
-    log_success "创建增强版 index.html"
+    green "  ✅ 已创建默认首页"
+    log_success "创建默认 index.html"
+
+    # 创建基本的 .htaccess 文件
+    cat > "$domain_base/public_html/.htaccess" <<'EOF'
+# Serv00 基础配置
+DirectoryIndex index.html index.php
+
+# 安全设置
+Options -Indexes
+Options +FollowSymLinks
+
+# 字符编码
+AddDefaultCharset UTF-8
+
+# 缓存设置
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+</IfModule>
+EOF
+
+    chmod 644 "$domain_base/public_html/.htaccess"
+    green "  ✅ 已创建 .htaccess 配置文件"
 
     echo ""
-    green "  ✅ 默认结构恢复完成"
+    green "✅ 默认结构恢复完成"
     log_success "默认结构恢复完成"
 }
 
-# === 完整系统重置（增强版）===
+# === 完整系统重置（优化版）===
 init_server() {
     clear
     red "┌────────────────────────────────────────────────────────────┐"
@@ -480,6 +435,7 @@ init_server() {
     echo "  • 🔥 清空所有定时任务 (cron)"
     echo "  • 💀 终止当前用户的全部进程"
     echo "  • 🧹 删除用户目录下的大部分内容"
+    echo "  • 🏗️  恢复默认目录结构"
     echo ""
     cyan "💡 serv00 自动保留最近 7 天备份（可在面板中恢复）"
     blue "💾 操作前会自动创建文件清单备份"
@@ -499,23 +455,24 @@ init_server() {
 
     echo ""
     cyan "════════════════════════════════════════════════════════════"
+    pink() { color "$PURPLE" "$1"; }
     pink "🚀 启动系统重置协议 v$SCRIPT_VERSION"
     cyan "════════════════════════════════════════════════════════════"
     log_info "=== 开始完整系统重置 ==="
 
     # 0. 创建备份清单
-    echo ""; cyan "[0/6] 📋 创建备份清单..."
+    echo ""; cyan "[0/7] 📋 创建备份清单..."
     create_backup_list
     sleep 1
 
     # 1. 清理定时任务
-    echo ""; cyan "[1/6] 🕒 清理 cron 任务..."
+    echo ""; cyan "[1/7] 🕒 清理 cron 任务..."
     clean_cron
     sleep 1
 
     # 2. 清理缓存目录
-    echo ""; cyan "[2/6] 🧹 清理缓存目录..."
-    local cache_dirs=("go" ".cache" ".npm" ".yarn" ".cargo/registry" ".local/share/Trash")
+    echo ""; cyan "[2/7] 🧹 清理缓存目录..."
+    local cache_dirs=("go" ".cache" ".npm" ".yarn" ".cargo" ".local/share/Trash" "tmp")
     local cleaned=0
     for d in "${cache_dirs[@]}"; do
         if [ -d "$HOME/$d" ]; then
@@ -527,16 +484,19 @@ init_server() {
     sleep 1
 
     # 3. 清理主目录
-    echo ""; cyan "[3/6] 🗑️  清理主目录..."
+    echo ""; cyan "[3/7] 🗑️  清理主目录..."
     if [[ "$saveProfile" =~ ^[Yy]$ ]]; then
         green "  → 保留模式：保留隐藏配置文件"
-        rm -rf "$HOME"/* 2>/dev/null
-        green "  ✅ 已清理非隐藏文件"
-        log_info "清理非隐藏文件（保留模式）"
+        # 保留配置文件，删除其他文件
+        find "$HOME" -maxdepth 1 -type f -not -path "$HOME/.serv00_logs/*" -not -name ".*" -delete 2>/dev/null
+        find "$HOME" -maxdepth 1 -type d -not -name "." -not -name ".." -not -name ".serv00_logs" -not -name "mail" -not -name "repo" -not -name "domains" -exec rm -rf {} + 2>/dev/null
+        green "  ✅ 已清理非配置文件和目录"
+        log_info "清理非配置文件（保留模式）"
     else
         yellow "  → 完全清理模式：包括隐藏文件"
         local protected=("." ".." "$LOG_DIR")
         
+        # 使用更安全的方式清空目录
         shopt -s nullglob dotglob 2>/dev/null || true
         for item in "$HOME"/* "$HOME"/.*; do
             local skip=0
@@ -553,13 +513,8 @@ init_server() {
     fi
     sleep 1
 
-    # 4. 恢复默认结构
-    echo ""; cyan "[4/6] 🏗️  恢复默认结构..."
-    restore_defaults
-    sleep 1
-
-    # 5. 清理用户进程
-    echo ""; cyan "[5/6] 💀 终止用户进程..."
+    # 4. 清理用户进程
+    echo ""; cyan "[4/7] 💀 终止用户进程..."
     yellow "  ⚠️  SSH 连接可能在 3 秒内断开..."
     for i in 3 2 1; do
         echo -n "  $i..."
@@ -567,9 +522,28 @@ init_server() {
     done
     echo ""
     kill_user_proc
+    sleep 1
 
-    # 6. 生成完成报告
-    echo ""; cyan "[6/6] 📊 生成重置报告..."
+    # 5. 恢复默认结构
+    echo ""; cyan "[5/7] 🏗️  恢复默认结构..."
+    restore_defaults
+    sleep 1
+
+    # 6. 验证重置结果
+    echo ""; cyan "[6/7] ✅ 验证重置结果..."
+    local checks=0
+    local total_checks=4
+    
+    if [ -d "$HOME/mail" ]; then ((checks++)); green "  ✅ mail 目录已创建"; else red "  ❌ mail 目录创建失败"; fi
+    if [ -d "$HOME/repo" ]; then ((checks++)); green "  ✅ repo 目录已创建"; else red "  ❌ repo 目录创建失败"; fi
+    if [ -d "$HOME/domains/$(whoami).serv00.net/public_html" ]; then ((checks++)); green "  ✅ 域名目录已创建"; else red "  ❌ 域名目录创建失败"; fi
+    if [ -f "$HOME/domains/$(whoami).serv00.net/public_html/index.html" ]; then ((checks++)); green "  ✅ 首页文件已创建"; else red "  ❌ 首页文件创建失败"; fi
+    
+    green "  ✅ 验证完成: $checks/$total_checks 项通过"
+    sleep 1
+
+    # 7. 生成完成报告
+    echo ""; cyan "[7/7] 📊 生成重置报告..."
     sleep 1
 
     echo ""
@@ -580,17 +554,17 @@ init_server() {
 
     local username=$(whoami)
     echo ""
-    pink "📌 重置后信息:"
+    blue "📌 重置后信息:"
     echo "  • 备份清单: $BACKUP_LIST"
     echo "  • 日志文件: $LOG_FILE"
     echo "  • 默认网站: https://$username.serv00.net"
     echo "  • serv00 备份: 面板中可恢复最近 7 天快照"
     echo ""
-    blue "💡 提示: 使用选项 6 查看详细重置报告"
+    blue "💡 提示: 使用选项 7 查看详细重置报告"
     echo ""
 }
 
-# === 查看重置报告（新功能）===
+# === 查看重置报告（优化版）===
 show_report() {
     clear
     cyan "┌────────────────────────────────────────────────────────────┐"
@@ -613,17 +587,20 @@ show_report() {
     if [ -f "$BACKUP_LIST" ]; then
         echo "📋 备份清单预览:"
         head -20 "$BACKUP_LIST"
-        echo "..."
+        if [ $(wc -l < "$BACKUP_LIST") -gt 20 ]; then
+            echo "..."
+            tail -5 "$BACKUP_LIST"
+        fi
         echo ""
     fi
     
     echo "最近操作日志:"
-    tail -15 "$LOG_FILE" 2>/dev/null || echo "无日志内容"
+    tail -20 "$LOG_FILE" 2>/dev/null || echo "无日志内容"
     echo ""
     cyan "────────────────────────────────────────────────────────────"
 }
 
-# === 系统状态显示（增强版）===
+# === 系统状态显示（优化版）===
 show_info() {
     clear
     cyan "┌────────────────────────────────────────────────────────────┐"
@@ -635,6 +612,7 @@ show_info() {
     echo "👤 用户: $username"
     echo "🏠 主目录: $HOME"
     echo "📍 当前路径: $(pwd)"
+    echo "⏰ 系统时间: $(date)"
     echo ""
 
     # 磁盘使用情况
@@ -643,8 +621,10 @@ show_info() {
         echo "💾 磁盘使用: $disk_info"
         
         local usage_percent=$(df -h "$HOME" 2>/dev/null | awk 'NR==2 {print $5}' | tr -d '%')
-        if [ "$usage_percent" -gt 80 ]; then
+        if [ -n "$usage_percent" ] && [ "$usage_percent" -gt 80 ]; then
             red "   ⚠️  磁盘使用率超过 80%"
+        elif [ -n "$usage_percent" ] && [ "$usage_percent" -gt 90 ]; then
+            red "   🔴 磁盘使用率超过 90%，请注意！"
         fi
     fi
 
@@ -664,11 +644,11 @@ show_info() {
     # 检查关键目录
     echo ""
     echo "📁 关键目录状态:"
-    for dir in "mail" "repo" "domains"; do
+    for dir in "mail" "repo" "domains" ".ssh"; do
         if [ -d "$HOME/$dir" ]; then
             green "  ✅ ~/$dir"
         else
-            red "  ❌ ~/$dir (不存在)"
+            yellow "  ⚠️  ~/$dir (不存在)"
         fi
     done
     
@@ -686,11 +666,20 @@ show_info() {
         fi
     fi
     
+    # 最近重置记录
+    if [ -f "$LOG_DIR/reset_*.log" ]; then
+        local last_reset=$(ls -1t "$LOG_DIR"/reset_*.log 2>/dev/null | head -1 | sed 's/.*reset_\([0-9]*_[0-9]*\).log/\1/')
+        if [ -n "$last_reset" ]; then
+            echo ""
+            blue "📋 最近重置: ${last_reset:0:8} ${last_reset:9:2}:${last_reset:11:2}"
+        fi
+    fi
+    
     echo ""
     cyan "────────────────────────────────────────────────────────────"
 }
 
-# === 快速恢复功能（新增）===
+# === 快速恢复功能（优化版）===
 quick_restore() {
     clear
     cyan "┌────────────────────────────────────────────────────────────┐"
@@ -699,6 +688,7 @@ quick_restore() {
     echo ""
     
     yellow "此功能将快速恢复基本目录结构和默认网站"
+    echo "不会删除现有文件，只创建缺失的目录和文件"
     echo ""
     
     read -p "$(cyan '是否继续？[Y/n]: ')" confirm
@@ -719,7 +709,7 @@ quick_restore() {
     log_success "快速恢复完成"
 }
 
-# === 清理历史日志（新增）===
+# === 清理历史日志（优化版）===
 clean_old_logs() {
     clear
     cyan "┌────────────────────────────────────────────────────────────┐"
@@ -727,9 +717,10 @@ clean_old_logs() {
     cyan "└────────────────────────────────────────────────────────────┘"
     echo ""
     
-    local log_count=$(ls -1 "$LOG_DIR"/*.log 2>/dev/null | wc -l)
+    local log_files=("$LOG_DIR"/reset_*.log)
+    local log_count=${#log_files[@]}
     
-    if [ "$log_count" -eq 0 ]; then
+    if [ "$log_count" -eq 0 ] || [ ! -f "${log_files[0]}" ]; then
         yellow "没有找到日志文件"
         return 0
     fi
@@ -746,7 +737,7 @@ clean_old_logs() {
     yellow "选项:"
     echo "  1. 保留最近 5 个日志"
     echo "  2. 保留最近 10 个日志"
-    echo "  3. 清空所有日志"
+    echo "  3. 清空所有日志（除当前日志）"
     echo "  4. 取消"
     echo ""
     
@@ -760,22 +751,36 @@ clean_old_logs() {
             echo ""
             cyan "保留最近 $keep 个日志，删除其余..."
             
-            ls -1t "$LOG_DIR"/*.log 2>/dev/null | tail -n +$((keep+1)) | while read -r f; do
-                rm -f "$f" && echo "  已删除: $(basename "$f")"
-            done
+            local sorted_logs=()
+            while IFS= read -r -d '' file; do
+                sorted_logs+=("$file")
+            done < <(find "$LOG_DIR" -name "reset_*.log" -print0 | sort -rz)
             
-            green "✅ 清理完成"
+            local total_files=${#sorted_logs[@]}
+            if [ $total_files -gt $keep ]; then
+                local to_delete=$((total_files - keep))
+                for ((i=0; i<to_delete; i++)); do
+                    local file_to_delete="${sorted_logs[$i]}"
+                    if [ "$file_to_delete" != "$LOG_FILE" ]; then
+                        rm -f "$file_to_delete" 2>/dev/null
+                        echo "  已删除: $(basename "$file_to_delete")"
+                    fi
+                done
+                green "✅ 清理完成，保留 $keep 个日志"
+            else
+                yellow "日志数量少于 $keep，无需清理"
+            fi
             log_success "清理旧日志（保留 $keep 个）"
             ;;
         3)
             echo ""
-            red "⚠️  将删除所有日志文件！"
+            red "⚠️  将删除所有日志文件（除当前日志）！"
             read -p "确认？[y/N]: " confirm
             
             if [[ "$confirm" =~ ^[Yy]$ ]]; then
-                rm -f "$LOG_DIR"/*.log 2>/dev/null
-                green "✅ 已清空所有日志"
-                log_success "清空所有日志"
+                find "$LOG_DIR" -name "reset_*.log" -not -name "$(basename "$LOG_FILE")" -delete 2>/dev/null
+                green "✅ 已清空旧日志（保留当前日志）"
+                log_success "清空旧日志"
             else
                 yellow "操作取消"
             fi
@@ -786,40 +791,44 @@ clean_old_logs() {
     esac
 }
 
-# === 主菜单界面（增强版）===
+# === 主菜单界面（优化版）===
 show_menu() {
     clear
     echo ""
     purple "╔════════════════════════════════════════════════════════════╗"
-    purple "║      🌐 Serv00 终极系统重置终端 v$SCRIPT_VERSION            ║"
+    purple "║      🌐 Serv00 系统重置工具 v$SCRIPT_VERSION               ║"
     purple "╚════════════════════════════════════════════════════════════╝"
     echo ""
     
-    echo "  $(pink "1.") $(cyan "🗑️   执行完整系统重置      ") $(yellow "[危险操作]")"
-    echo "  $(pink "2.") $(cyan "🎯  选择性清理             ") $(green "[推荐]")"
-    echo "  $(pink "3.") $(cyan "⚡  快速恢复默认结构       ") $(blue "[安全]")"
+    echo "  $(purple "1.") $(cyan "🗑️   执行完整系统重置      ") $(red "[危险操作]")"
+    echo "  $(purple "2.") $(cyan "🎯  选择性清理             ") $(green "[推荐]")"
+    echo "  $(purple "3.") $(cyan "⚡  快速恢复默认结构       ") $(blue "[安全]")"
     echo ""
-    echo "  $(pink "4.") $(cyan "🕒  清空 cron 定时任务    ")"
-    echo "  $(pink "5.") $(cyan "💀  终止用户进程           ")"
-    echo "  $(pink "6.") $(cyan "📊  查看系统状态           ")"
+    echo "  $(purple "4.") $(cyan "🕒  清空 cron 定时任务    ")"
+    echo "  $(purple "5.") $(cyan "💀  终止用户进程           ")"
+    echo "  $(purple "6.") $(cyan "📊  查看系统状态           ")"
     echo ""
-    echo "  $(pink "7.") $(cyan "📋  查看重置报告           ")"
-    echo "  $(pink "8.") $(cyan "🗑️   清理历史日志          ")"
-    echo "  $(pink "9.") $(cyan "🚪  退出终端               ")"
+    echo "  $(purple "7.") $(cyan "📋  查看重置报告           ")"
+    echo "  $(purple "8.") $(cyan "🗑️   清理历史日志          ")"
+    echo "  $(purple "9.") $(cyan "🚪  退出                   ")"
     echo ""
     cyan "────────────────────────────────────────────────────────────"
     
-    # 显示快捷提示
-    if [ -f "$LOG_FILE" ]; then
-        local last_reset=$(grep "系统重置完成" "$LOG_FILE" | tail -1 | awk '{print $1, $2}')
-        if [ -n "$last_reset" ]; then
-            echo ""
-            blue "💡 上次重置: ${last_reset:1:16}"
+    # 显示系统状态摘要
+    local username=$(whoami)
+    local disk_usage=$(df -h "$HOME" 2>/dev/null | awk 'NR==2 {print $5}' | tr -d '%')
+    local proc_count=$(ps -U "$username" 2>/dev/null | wc -l | tr -d ' ')
+    
+    echo "📋 系统摘要: 进程 $proc_count 个"
+    if [ -n "$disk_usage" ] && [ "$disk_usage" -gt 0 ]; then
+        echo "💾 磁盘使用: ${disk_usage}%"
+        if [ "$disk_usage" -gt 80 ]; then
+            echo "⚠️  磁盘使用率较高"
         fi
     fi
     
     echo ""
-    read -p "$(pink ">> 请选择操作 [1-9]: ")" choice
+    read -p "$(purple ">> 请选择操作 [1-9]: ")" choice
 
     case $choice in
         1)
@@ -861,7 +870,7 @@ show_menu() {
             ;;
         9)
             echo ""
-            read -p "$(yellow "确定退出终端？[Y/n]: ")" e
+            read -p "$(yellow "确定退出？[Y/n]: ")" e
             e=${e:-Y}
             
             if [[ "$e" =~ ^[Yy]$ ]]; then
@@ -883,25 +892,24 @@ show_welcome() {
     echo ""
     purple "╔════════════════════════════════════════════════════════════╗"
     purple "║                                                            ║"
-    purple "║          🚀 Serv00 终极系统重置工具 v$SCRIPT_VERSION        ║"
+    purple "║          🚀 Serv00 系统重置工具 v$SCRIPT_VERSION           ║"
     purple "║                                                            ║"
     purple "╚════════════════════════════════════════════════════════════╝"
     echo ""
     cyan "  作者: Tokeisou Samueru"
     cyan "  适配: FreeBSD (serv00.com)"
-    cyan "  风格: 赛博朋克终端 UI"
     echo ""
-    blue "  ✨ 新特性:"
-    echo "    • 🎯 选择性清理模式"
-    echo "    • ⚡ 快速恢复功能"
-    echo "    • 📋 自动备份清单"
-    echo "    • 📊 增强的系统报告"
-    echo "    • 🎨 升级版默认网站"
+    blue "  ✨ 功能特点:"
+    echo "    • 安全的系统重置"
+    echo "    • 选择性清理模式"
+    echo "    • 自动备份与恢复"
+    echo "    • 详细的日志记录"
+    echo "    • 一键快速恢复"
     echo ""
-    yellow "  ⚠️  重要提示:"
-    echo "    • 所有危险操作都有二次确认"
-    echo "    • serv00 自动保留 7 天快照备份"
-    echo "    • 日志保存在 ~/.serv00_logs/"
+    yellow "  ⚠️  使用说明:"
+    echo "    • 推荐先使用选择性清理"
+    echo "    • 完整重置前请确认重要数据已备份"
+    echo "    • serv00 提供7天自动备份"
     echo ""
     cyan "────────────────────────────────────────────────────────────"
     echo ""
@@ -912,7 +920,7 @@ show_welcome() {
 cleanup_on_exit() {
     log_info "脚本异常退出"
     echo ""
-    yellow "⚠️  脚本已中断"
+    yellow "⚠️  脚本被中断"
     exit 130
 }
 
@@ -927,6 +935,7 @@ main() {
     log_info "=== 脚本启动 v$SCRIPT_VERSION ==="
     log_info "执行用户: $(whoami)"
     log_info "主目录: $HOME"
+    log_info "脚本 PID: $SCRIPT_PID"
     
     # 显示欢迎界面（仅首次）
     if [ ! -f "$LOG_DIR/.welcomed" ]; then
@@ -943,4 +952,4 @@ main() {
 }
 
 # 启动脚本
-main
+main "$@"
