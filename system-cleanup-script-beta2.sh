@@ -4,7 +4,6 @@
 # 版本: 4.0 Ultimate Edition
 # 适配: FreeBSD (serv00.com)
 # 作者: Tokeisou Samueru
-# 风格: 赛博朋克终端 UI + 增强安全特性
 
 set -o pipefail
 
