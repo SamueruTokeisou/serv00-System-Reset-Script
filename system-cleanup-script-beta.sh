@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# serv00 系统重置脚本 - 修复版
-# 版本: 4.2 Fixed Edition
+# serv00 系统重置脚本 - 自动版
+# 版本: 4.3 Auto Edition
 # 适配: FreeBSD (serv00.com)
-# 作者: Tokeisou Samueru (修复版)
+# 作者: Tokeisou Samueru (自动版)
 
 set -o pipefail
 
@@ -40,7 +40,7 @@ red()    { color "$RED" "$1"; }
 blue()   { color "$BLUE" "$1"; }
 
 # === 配置区 ===
-SCRIPT_VERSION="4.2"
+SCRIPT_VERSION="4.3"
 LOG_DIR="$HOME/.serv00_logs"
 LOG_FILE="$LOG_DIR/reset_$(date +%Y%m%d_%H%M%S).log"
 BACKUP_LIST="$LOG_DIR/backup_list.txt"
@@ -181,7 +181,7 @@ kill_user_proc() {
     local pids=()
     local count=0
     
-    # 收集进程列表（使用更安全的方式）
+    # 收集进程列表（使用更安全的方式，避免阻塞）
     local all_pids=$(ps -U "$user" -o pid= 2>/dev/null | grep -v "^$")
     if [ -z "$all_pids" ]; then
         yellow "  ⚠️  未发现可终止的进程"
@@ -213,9 +213,11 @@ kill_user_proc() {
         else
             log_warn "无法终止进程 $pid"
         fi
-        show_progress "$count" "$total" "终止进程中..."
+        # 不显示进度条，避免在FreeBSD上卡住
+        echo -n "."
     done
     
+    echo ""
     green "  ✅ 已终止 $count/$total 个进程"
     log_success "成功终止 $count 个进程"
 }
@@ -244,77 +246,6 @@ clean_directory() {
         yellow "  ⚠️  无法删除 $name"
         log_warn "删除失败: $dir"
     fi
-}
-
-# === 选择性清理（修复版）===
-selective_clean() {
-    clear
-    cyan "┌────────────────────────────────────────────────────────────┐"
-    cyan "│              🎯 选择性清理模式                             │"
-    cyan "└────────────────────────────────────────────────────────────┘"
-    echo ""
-    
-    local options=(
-        "缓存目录 (.cache, .npm, .yarn, .cargo)"
-        "临时文件 (tmp, .tmp)"
-        "日志文件 (*.log, logs/*)"
-        "编程环境 (go, node_modules)"
-        "下载目录 (Downloads)"
-        "全部以上"
-    )
-    
-    echo "选择要清理的项目（多选用空格分隔）:"
-    for i in "${!options[@]}"; do
-        echo "  $((i+1)). ${options[$i]}"
-    done
-    echo ""
-    
-    read -p "请输入选项 (如: 1 3 5): " choices
-    
-    if [[ "$choices" == *"6"* ]] || [[ "$choices" == *"全"* ]]; then
-        choices="1 2 3 4 5"
-    fi
-    
-    echo ""
-    cyan "开始清理..."
-    
-    for choice in $choices; do
-        case $choice in
-            1)
-                echo ""; blue "[1] 清理缓存目录..."
-                clean_directory "$HOME/.cache" "缓存目录"
-                clean_directory "$HOME/.npm" "NPM 缓存"
-                clean_directory "$HOME/.yarn" "Yarn 缓存"
-                clean_directory "$HOME/.cargo/registry" "Cargo 缓存"
-                clean_directory "$HOME/.cargo/git" "Cargo Git 缓存"
-                ;;
-            2)
-                echo ""; blue "[2] 清理临时文件..."
-                clean_directory "$HOME/tmp" "临时目录"
-                clean_directory "$HOME/.tmp" "隐藏临时目录"
-                ;;
-            3)
-                echo ""; blue "[3] 清理日志文件..."
-                find "$HOME" -name "*.log" -type f -delete 2>/dev/null
-                clean_directory "$HOME/logs" "日志目录"
-                ;;
-            4)
-                echo ""; blue "[4] 清理编程环境..."
-                clean_directory "$HOME/go" "Go 环境"
-                find "$HOME" -name "node_modules" -type d -exec rm -rf {} + 2>/dev/null
-                green "  ✅ node_modules 已清理"
-                ;;
-            5)
-                echo ""; blue "[5] 清理下载目录..."
-                clean_directory "$HOME/Downloads" "下载目录"
-                rm -f "$HOME/.wget-hsts" 2>/dev/null
-                green "  ✅ 下载相关文件已清理"
-                ;;
-        esac
-    done
-    
-    echo ""
-    read -p "$(cyan "按 ENTER 返回主菜单...")" -r
 }
 
 # === 恢复默认结构（修复版）===
@@ -429,7 +360,7 @@ EOF
     log_success "默认结构恢复完成"
 }
 
-# === 完整系统重置（修复版）===
+# === 完整系统重置（自动版）===
 init_server() {
     clear
     red "┌────────────────────────────────────────────────────────────┐"
@@ -469,13 +400,11 @@ init_server() {
     # 0. 创建备份清单
     echo ""; cyan "[0/7] 📋 创建备份清单..."
     create_backup_list
-    read -p "$(cyan "按 ENTER 继续...")" -r
     sleep 1
 
     # 1. 清理定时任务
     echo ""; cyan "[1/7] 🕒 清理 cron 任务..."
     clean_cron
-    read -p "$(cyan "按 ENTER 继续...")" -r
     sleep 1
 
     # 2. 清理缓存目录
@@ -489,7 +418,6 @@ init_server() {
         fi
     done
     green "  ✅ 已清理 $cleaned 个缓存目录"
-    read -p "$(cyan "按 ENTER 继续...")" -r
     sleep 1
 
     # 3. 清理主目录
@@ -519,7 +447,6 @@ init_server() {
         green "  ✅ 已完全清空主目录"
         log_info "完全清空主目录"
     fi
-    read -p "$(cyan "按 ENTER 继续...")" -r
     sleep 1
 
     # 4. 清理用户进程
@@ -531,13 +458,11 @@ init_server() {
     done
     echo ""
     kill_user_proc
-    read -p "$(cyan "按 ENTER 继续...")" -r
     sleep 1
 
     # 5. 恢复默认结构
     echo ""; cyan "[5/7] 🏗️  恢复默认结构..."
     restore_defaults
-    read -p "$(cyan "按 ENTER 继续...")" -r
     sleep 1
 
     # 6. 验证重置结果
@@ -551,7 +476,6 @@ init_server() {
     if [ -f "$HOME/domains/$(whoami).serv00.net/public_html/index.html" ]; then ((checks++)); green "  ✅ 首页文件已创建"; else red "  ❌ 首页文件创建失败"; fi
     
     green "  ✅ 验证完成: $checks/$total_checks 项通过"
-    read -p "$(cyan "按 ENTER 继续...")" -r
     sleep 1
 
     # 7. 生成完成报告
@@ -574,11 +498,81 @@ init_server() {
     echo ""
     blue "💡 提示: 使用选项 7 查看详细重置报告"
     echo ""
-    
-    read -p "$(cyan "按 ENTER 返回主菜单...")" -r
 }
 
-# === 查看重置报告（修复版）===
+# === 选择性清理（自动版）===
+selective_clean() {
+    clear
+    cyan "┌────────────────────────────────────────────────────────────┐"
+    cyan "│              🎯 选择性清理模式                             │"
+    cyan "└────────────────────────────────────────────────────────────┘"
+    echo ""
+    
+    local options=(
+        "缓存目录 (.cache, .npm, .yarn, .cargo)"
+        "临时文件 (tmp, .tmp)"
+        "日志文件 (*.log, logs/*)"
+        "编程环境 (go, node_modules)"
+        "下载目录 (Downloads)"
+        "全部以上"
+    )
+    
+    echo "选择要清理的项目（多选用空格分隔）:"
+    for i in "${!options[@]}"; do
+        echo "  $((i+1)). ${options[$i]}"
+    done
+    echo ""
+    
+    read -p "请输入选项 (如: 1 3 5): " choices
+    
+    if [[ "$choices" == *"6"* ]] || [[ "$choices" == *"全"* ]]; then
+        choices="1 2 3 4 5"
+    fi
+    
+    echo ""
+    cyan "开始清理..."
+    
+    for choice in $choices; do
+        case $choice in
+            1)
+                echo ""; blue "[1] 清理缓存目录..."
+                clean_directory "$HOME/.cache" "缓存目录"
+                clean_directory "$HOME/.npm" "NPM 缓存"
+                clean_directory "$HOME/.yarn" "Yarn 缓存"
+                clean_directory "$HOME/.cargo/registry" "Cargo 缓存"
+                clean_directory "$HOME/.cargo/git" "Cargo Git 缓存"
+                ;;
+            2)
+                echo ""; blue "[2] 清理临时文件..."
+                clean_directory "$HOME/tmp" "临时目录"
+                clean_directory "$HOME/.tmp" "隐藏临时目录"
+                ;;
+            3)
+                echo ""; blue "[3] 清理日志文件..."
+                find "$HOME" -name "*.log" -type f -delete 2>/dev/null
+                clean_directory "$HOME/logs" "日志目录"
+                ;;
+            4)
+                echo ""; blue "[4] 清理编程环境..."
+                clean_directory "$HOME/go" "Go 环境"
+                find "$HOME" -name "node_modules" -type d -exec rm -rf {} + 2>/dev/null
+                green "  ✅ node_modules 已清理"
+                ;;
+            5)
+                echo ""; blue "[5] 清理下载目录..."
+                clean_directory "$HOME/Downloads" "下载目录"
+                rm -f "$HOME/.wget-hsts" 2>/dev/null
+                green "  ✅ 下载相关文件已清理"
+                ;;
+        esac
+    done
+    
+    echo ""
+    green "✅ 选择性清理完成"
+    log_success "选择性清理完成: $choices"
+}
+
+# === 查看重置报告（自动版）===
 show_report() {
     clear
     cyan "┌────────────────────────────────────────────────────────────┐"
@@ -588,7 +582,6 @@ show_report() {
     
     if [ ! -f "$LOG_FILE" ]; then
         yellow "暂无重置记录"
-        read -p "$(cyan "按 ENTER 返回主菜单...")" -r
         return 0
     fi
     
@@ -613,10 +606,9 @@ show_report() {
     tail -20 "$LOG_FILE" 2>/dev/null || echo "无日志内容"
     echo ""
     cyan "────────────────────────────────────────────────────────────"
-    read -p "$(cyan "按 ENTER 返回主菜单...")" -r
 }
 
-# === 系统状态显示（修复版）===
+# === 系统状态显示（自动版）===
 show_info() {
     clear
     cyan "┌────────────────────────────────────────────────────────────┐"
@@ -693,10 +685,9 @@ show_info() {
     
     echo ""
     cyan "────────────────────────────────────────────────────────────"
-    read -p "$(cyan "按 ENTER 返回主菜单...")" -r
 }
 
-# === 快速恢复功能（修复版）===
+# === 快速恢复功能（自动版）===
 quick_restore() {
     clear
     cyan "┌────────────────────────────────────────────────────────────┐"
@@ -724,10 +715,9 @@ quick_restore() {
     echo ""
     green "✅ 快速恢复完成！"
     log_success "快速恢复完成"
-    read -p "$(cyan "按 ENTER 返回主菜单...")" -r
 }
 
-# === 清理历史日志（修复版）===
+# === 清理历史日志（自动版）===
 clean_old_logs() {
     clear
     cyan "┌────────────────────────────────────────────────────────────┐"
@@ -740,7 +730,6 @@ clean_old_logs() {
     
     if [ "$log_count" -eq 0 ] || [ ! -f "${log_files[0]}" ]; then
         yellow "没有找到日志文件"
-        read -p "$(cyan "按 ENTER 返回主菜单...")" -r
         return 0
     fi
     
@@ -806,10 +795,9 @@ clean_old_logs() {
             yellow "操作取消"
             ;;
     esac
-    read -p "$(cyan "按 ENTER 返回主菜单...")" -r
 }
 
-# === 主菜单界面（修复版）===
+# === 主菜单界面（自动版）===
 show_menu() {
     clear
     echo ""
@@ -862,7 +850,6 @@ show_menu() {
             echo ""
             cyan "执行中: 清理 cron 定时任务"
             clean_cron
-            read -p "$(cyan "按 ENTER 返回主菜单...")" -r
             ;;
         5)
             echo ""
@@ -877,7 +864,6 @@ show_menu() {
             else
                 yellow "操作取消"
             fi
-            read -p "$(cyan "按 ENTER 返回主菜单...")" -r
             ;;
         6)
             show_info
@@ -966,6 +952,8 @@ main() {
     # 主循环
     while true; do
         show_menu
+        echo ""
+        read -p "$(cyan "按 ENTER 返回主菜单...")" -r
     done
 }
 
